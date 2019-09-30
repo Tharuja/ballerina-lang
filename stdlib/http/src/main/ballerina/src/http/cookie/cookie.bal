@@ -16,6 +16,8 @@
 
 import ballerina/time;
 import ballerina/log;
+import ballerina/lang.'int as ints;
+
 
 #Represents a Cookie
 # 
@@ -151,6 +153,87 @@ import ballerina/log;
             resultString=setCookieHeaderValue+name+EQUALS+value.toString()+SEMICOLON+SPACE;
 
             return resultString;
+        }
+
+        //Returns the cookie object from Set-Cookie header string value.
+        public function toCookie(string cookieStringValue) returns Cookie
+
+        {
+            Cookie cookie=new;
+            string cookieValue=cookieStringValue;
+            string[] result=[];
+            int i=0;
+
+               while(cookieValue.length()!=0)
+               {
+                   int? index = cookieValue.indexOf(";");
+                    if (index is int) {
+                  result[i]=cookieValue.substring(0,index);
+                cookieValue=cookieValue.substring(index+2,cookieValue.length());
+                       i=i+1;
+                        }
+               else{
+                    result[i]=cookieValue;
+                   break;
+               }
+
+               }
+
+
+          int? index = result[0].indexOf("=");
+             if (index is int) {
+                  cookie.name=result[0].substring(0,index);
+                  cookie.value=result[0].substring(index+1,result[0].length());
+             }
+
+            foreach string item in result {
+
+                string attributeName="";
+                string attributeValue="";
+                index = item.indexOf("=");
+                if (index is int) {
+                  attributeName=item.substring(0,index);
+                  attributeValue=item.substring(index+1,item.length());
+
+                 }
+
+                  match attributeName {
+                    "Domain" => {
+                      cookie.domain=attributeValue;
+
+                    }
+                    "Path" => {
+                      cookie.path=attributeValue;
+
+                    }
+                    "Max-Age" => {
+                       int|error age = ints:fromString(attributeValue);
+                      if (age is int) {
+
+                      cookie.maxAge=age;
+                      }
+                   }
+
+                      "Expires" => {
+                      cookie.expires=attributeValue;
+
+
+                    }
+                      "Secure" => {
+                      cookie.secure=true;
+
+
+                    }
+                      "HttpOnly" => {
+                      cookie.httpOnly=true;
+
+
+                    }
+
+                }
+            }
+
+           return cookie;
         }
 
 

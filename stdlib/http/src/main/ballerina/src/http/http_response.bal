@@ -411,6 +411,22 @@ public type Response object {
 
     }
 
+    # Gets cookies from the response.
+    #
+    # + return - An array of cookie objects which are included in the response.
+    public function getCookiesInResponse() returns @tainted Cookie[]
+    {
+      Cookie[] cookiesInResponse=[];
+      string[] cookiesStringValues = self.getHeaders("Set-Cookie");
+      int i=0;
+          foreach string cookiesStringValue in cookiesStringValues {
+            cookiesInResponse[i]=toCookie(cookiesStringValue);
+            i=i+1;
+          }
+        return cookiesInResponse;
+
+    }
+
 
 
 
