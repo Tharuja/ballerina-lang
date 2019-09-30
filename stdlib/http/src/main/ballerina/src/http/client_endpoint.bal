@@ -229,6 +229,7 @@ public type TargetService record {|
 # + auth - HTTP authentication related configurations
 # + circuitBreaker - Configurations associated with Circuit Breaker behaviour
 # + retryConfig - Configurations associated with Retry
+# + cookieConfig - Configurations associated with Cookie
 public type ClientConfiguration record {|
     string httpVersion = HTTP_1_1;
     ClientHttp1Settings http1Settings = {};
@@ -243,6 +244,7 @@ public type ClientConfiguration record {|
     OutboundAuthConfig? auth = ();
     CircuitBreakerConfig? circuitBreaker = ();
     RetryConfig? retryConfig = ();
+    CookieConfig? cookieConfig = {};
 |};
 
 # Provides settings related to HTTP/1.x protocol.
@@ -343,6 +345,24 @@ public type ProxyConfig record {|
 # + authHandler - The outbound authentication handler
 public type OutboundAuthConfig record {|
     OutboundAuthHandler authHandler;
+|};
+
+#Client configuration for cookies
+#
+# +enabled - User agents provide users with a mechanism for disabling or enabling cookies.
+# +maxPerCookieSize - At least 4096 bytes per cookie (as measured by the sum of the length of the cookie’s name, value, and  attributes).
+# +maxCookiesPerDomain - At least 50 cookies per domain.
+# +maxCookieCount - At least 3000 cookies total.
+# +blockThirdPartyCookies - User can block cookies from third party responses and refuse to send cookies for third party requests  if needed.
+# +enablePersistent - Users are provided with a mechanism for enabling or disabling persistent cookies which are stored until a specific expiration date.
+#                     If false, only session cookies are used.
+public type CookieConfig record {|
+     boolean enabled = false;
+     int maxPerCookieSize = 4096;
+     int maxCookieCount = 3000;
+     int maxCookiesPerDomain=50;
+     boolean blockThirdPartyCookies = true;
+     boolean enablePersistent = false;
 |};
 
 function initialize(string serviceUrl, ClientConfiguration config) returns HttpClient|error {

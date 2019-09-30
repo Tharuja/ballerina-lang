@@ -19,6 +19,7 @@ import ballerina/mime;
 import ballerina/crypto;
 import ballerina/time;
 import ballerina/stringutils;
+import ballerina/log;
 
 # Represents an HTTP response.
 #
@@ -108,6 +109,7 @@ public type Response object {
     # + headerName - The header name
     # + headerValue - The header value
     public function setHeader(string headerName, string headerValue) {
+
         mime:Entity entity = self.getEntityWithoutBody();
         entity.setHeader(headerName, headerValue);
 
@@ -383,4 +385,33 @@ public type Response object {
             self.setBodyParts(payload);
         }
     }
+
+    # Adds the cookie to response.
+    #
+    # + cookie - The cookie which is added to response
+    public function addCookie(Cookie cookie) {
+
+        if (cookie.isValid()) {
+                self.addHeader("Set-Cookie", cookie.toStringValue());
+            } else {
+                log:printWarn("Invalid cookie");
+            }
+    }
+
+
+    # Deletes cookies in the client's cookie store by server .
+    #
+    # + cookiesToRemove - Cookies to be deleted.
+    public function removeCookiesFromClientStore(Cookie...cookiesToRemove)
+    {
+        foreach var cookie in cookiesToRemove {
+             cookie.expires="1994-03-12 08:12:22";
+             self.addCookie(cookie);
+     }
+
+    }
+
+
+
+
 };

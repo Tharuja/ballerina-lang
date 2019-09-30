@@ -102,6 +102,37 @@ public class ResponseNativeFunctionSuccessTest {
         Assert.assertEquals(returnHeaders.get(headerName), headerValue);
     }
 
+    @Test
+    public void testAddCookie() {
+        ObjectValue outResponse = createResponseObject();
+        String headerName="Set-Cookie";
+        String headerValue="SID3=31d4d96e407aad42; Domain=google.com; Path=/sample; Expires=Mon, 26 Jun 2017 05:46:22 GMT; Max-Age=3600; HttpOnly; Secure";
+        BValue[] returnValue = BRunUtil.invoke(result, "testAddCookie",
+                new Object[]{ outResponse});
+        Assert.assertFalse(returnValue.length == 0 || returnValue[0] == null, "Invalid Return Values.");
+        Assert.assertTrue(returnValue[0] instanceof BMap);
+        BMap<String, BValue> entityStruct =
+                (BMap<String, BValue>) ((BMap<String, BValue>) returnValue[0]).get(RESPONSE_ENTITY_FIELD);
+        HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
+        Assert.assertEquals(returnHeaders.get(headerName), headerValue);
+
+    }
+    @Test
+    public void testRemoveCookies() {
+        ObjectValue outResponse = createResponseObject();
+        String headerName="Set-Cookie";
+        String headerValue="SID3=31d4d96e407aad42; Expires=Sat, 12 Mar 1994 08:12:22 GMT";
+        BValue[] returnValue =BRunUtil.invoke(result, "testRemoveCookies",
+                new Object[]{ outResponse});
+        Assert.assertFalse(returnValue.length == 0 || returnValue[0] == null, "Invalid Return Values.");
+        Assert.assertTrue(returnValue[0] instanceof BMap);
+        BMap<String, BValue> entityStruct =
+                (BMap<String, BValue>) ((BMap<String, BValue>) returnValue[0]).get(RESPONSE_ENTITY_FIELD);
+        HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
+        Assert.assertEquals(returnHeaders.get(headerName), headerValue);
+
+    }
+
     @Test(description = "Test addHeader function within a service")
     public void testServiceAddHeader() {
         String key = "lang";
