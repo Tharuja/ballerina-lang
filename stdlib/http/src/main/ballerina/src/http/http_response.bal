@@ -167,8 +167,12 @@ public type Response object {
         } else {
             var payload = result.getJson();
             if (payload is mime:Error) {
-                string message = "Error occurred while retrieving the json payload from the response";
-                return getGenericClientError(message, payload);
+                if (payload.detail()?.cause is mime:NoContentError) {
+                    return createErrorForNoPayload(payload);
+                } else {
+                    string message = "Error occurred while retrieving the json payload from the response";
+                    return getGenericClientError(message, payload);
+               }
             } else {
                 return payload;
             }
@@ -185,8 +189,12 @@ public type Response object {
         } else {
             var payload = result.getXml();
             if (payload is mime:Error) {
-                string message = "Error occurred while retrieving the xml payload from the response";
-                return getGenericClientError(message, payload);
+                if (payload.detail()?.cause is mime:NoContentError) {
+                    return createErrorForNoPayload(payload);
+                } else {
+                    string message = "Error occurred while retrieving the xml payload from the response";
+                    return getGenericClientError(message, payload);
+               }
             } else {
                 return payload;
             }
@@ -203,8 +211,12 @@ public type Response object {
         } else {
             var payload = result.getText();
             if (payload is mime:Error) {
-                string message = "Error occurred while retrieving the text payload from the response";
-                return getGenericClientError(message, payload);
+                if (payload.detail()?.cause is mime:NoContentError) {
+                    return createErrorForNoPayload(payload);
+                } else {
+                    string message = "Error occurred while retrieving the text payload from the response";
+                    return getGenericClientError(message, payload);
+               }
             } else {
                 return payload;
             }
@@ -414,16 +426,16 @@ public type Response object {
     # Gets cookies from the response.
     #
     # + return - An array of cookie objects which are included in the response.
-    public function getCookiesInResponse() returns @tainted Cookie[]
+    public function getCookies() returns @tainted Cookie[]
     {
       Cookie[] cookiesInResponse=[];
       string[] cookiesStringValues = self.getHeaders("Set-Cookie");
       int i=0;
           foreach string cookiesStringValue in cookiesStringValues {
-            cookiesInResponse[i]=toCookie(cookiesStringValue);
-            i=i+1;
+          cookiesInResponse[i]=toCookie(cookiesStringValue);
+          i=i+1;
           }
-        return cookiesInResponse;
+      return cookiesInResponse;
 
     }
 
