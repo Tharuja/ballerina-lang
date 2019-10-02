@@ -2,11 +2,7 @@
     "name": "ballerina",
     "displayName": "Ballerina",
     "description": "Intellisense, Diagram View, Debugging, code formatting and refactoring for Ballerina",
-<<<<<<< HEAD
-    "version": "1.0.1-SNAPSHOT",
-=======
-    "version": "1.0.1",
->>>>>>> e51a71b17bd3d2619714a282bf1e4a2284318e84
+    "version": "1.0.2-SNAPSHOT",
     "publisher": "ballerina",
     "repository": {
         "type": "git",

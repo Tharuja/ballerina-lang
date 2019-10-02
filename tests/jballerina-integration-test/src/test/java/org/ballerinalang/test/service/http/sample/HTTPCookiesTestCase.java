@@ -19,7 +19,17 @@ public class HTTPCookiesTestCase extends HttpBaseTest {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9251, "cookie/addCookies"));
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.SET_COOKIE.toString()),"SID002=239d4dmnmsddd34; Domain=google.com; Path=/sample; Expires=Mon, 26 Jun 2017 05:46:22 GMT; Max-Age=3600; HttpOnly; Secure");
+        Assert.assertEquals(response.getHeaders().get("Set-Cookie").toString(),"SID002=239d4dmnmsddd34; Domain=google.com; Path=/sample; Expires=Mon, 26 Jun 2017 05:46:22 GMT; Max-Age=3600; HttpOnly; Secure");
+
+
+    }
+
+    @Test(description = "Test removing  the added cookie from client's cookie store")
+    public void testRemoveCookiesFromCookieStore() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9251, "cookie/removeCookies"));
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getHeaders().get("Set-Cookie").toString(),"SID002=239d4dmnmsddd34; Domain=google.com; Path=/sample; Expires=Sat, 12 Mar 1994 08:12:22 GMT; Max-Age=3600; HttpOnly; Secure");
 
 
     }

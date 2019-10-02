@@ -38,7 +38,7 @@ function testRemoveCookies(http:Response res)  returns http:Response {
      cookie.value="31d4d96e407aad42";
      cookie.expires="2017-06-26 05:46:22";
 
-    res.removeCookiesFromClientStore(cookie);
+    res.removeCookiesFromCookieStore(cookie);
     return res;
 
 }

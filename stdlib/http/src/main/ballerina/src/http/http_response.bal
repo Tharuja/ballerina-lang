@@ -414,7 +414,7 @@ public type Response object {
     # Deletes cookies in the client's cookie store by server .
     #
     # + cookiesToRemove - Cookies to be deleted.
-    public function removeCookiesFromClientStore(Cookie...cookiesToRemove)
+    public function removeCookiesFromCookieStore(Cookie...cookiesToRemove)
     {
         foreach var cookie in cookiesToRemove {
              cookie.expires="1994-03-12 08:12:22";
@@ -430,6 +430,7 @@ public type Response object {
     {
       Cookie[] cookiesInResponse=[];
       string[] cookiesStringValues = self.getHeaders("Set-Cookie");
+
       int i=0;
           foreach string cookiesStringValue in cookiesStringValues {
           cookiesInResponse[i]=toCookie(cookiesStringValue);

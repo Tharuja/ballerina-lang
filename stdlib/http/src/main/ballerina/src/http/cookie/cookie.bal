@@ -17,6 +17,7 @@
 import ballerina/time;
 import ballerina/log;
 import ballerina/lang.'int as ints;
+import ballerina/stringutils;
 
 
 #Represents a Cookie
@@ -157,52 +158,31 @@ import ballerina/lang.'int as ints;
 
         //Returns the cookie object from Set-Cookie header string value.
         public function toCookie(string cookieStringValue) returns Cookie {
-
             Cookie cookie=new;
             string cookieValue=cookieStringValue;
-            string[] result=[];
-            int i=0;
-               while(cookieValue.length()!=0) {
-                   int? index = cookieValue.indexOf(";");
-                   if (index is int) {
-                       result[i]=cookieValue.substring(0,index);
-                       cookieValue=cookieValue.substring(index+2,cookieValue.length());
-                       i=i+1;
-                   }
-                   else{
-                       result[i]=cookieValue;
-                       break;
-                   }
-               }
+            string[] result=stringutils:split(cookieValue, "; ");
+            string[] nameValuePair=stringutils:split(result[0], "=");
 
-            int? index = result[0].indexOf("=");
-            if (index is int) {
-                  cookie.name=result[0].substring(0,index);
-                  cookie.value=result[0].substring(index+1,result[0].length());
-             }
-            foreach string item in result {
-                string attributeName="";
-                string attributeValue="";
-                index = item.indexOf("=");
-                if (index is int) {
-                      attributeName=item.substring(0,index);
-                      attributeValue=item.substring(index+1,item.length());
-                 }
-                 match attributeName {
+            cookie.name=nameValuePair[0];
+            cookie.value=nameValuePair[1];
+
+            foreach var item in result {
+                 nameValuePair=stringutils:split(item,"=");
+                 match nameValuePair[0]  {
                     "Domain" => {
-                     cookie.domain=attributeValue;
+                     cookie.domain=nameValuePair[1];
                   }
                     "Path" => {
-                      cookie.path=attributeValue;
+                      cookie.path=nameValuePair[1];
                   }
                     "Max-Age" => {
-                      int|error age = ints:fromString(attributeValue);
+                      int|error age = ints:fromString(nameValuePair[1]);
                       if (age is int) {
                           cookie.maxAge=age;
                       }
                   }
                       "Expires" => {
-                      cookie.expires=attributeValue;
+                      cookie.expires=nameValuePair[1];
                   }
                       "Secure" => {
                       cookie.secure=true;
