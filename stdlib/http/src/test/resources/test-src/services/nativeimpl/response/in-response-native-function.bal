@@ -43,6 +43,23 @@ function testRemoveCookies(http:Response res)  returns http:Response {
 
 }
 
+function testGetCookies(http:Response res) returns @tainted http:Cookie[]{
+         http:Cookie Cookie1=new;
+         Cookie1.name="SID002";
+         Cookie1.value = "239d4dmnmsddd34";
+         Cookie1.path = "/sample";
+         Cookie1.domain = ".GOOGLE.com.";
+         Cookie1.maxAge = 3600 ;
+         Cookie1.expires="2017-06-26 05:46:22";
+         Cookie1.httpOnly = true;
+         Cookie1.secure = true;
+
+         res.addCookie(Cookie1);
+         //Gets the added cookies from response.
+         http:Cookie[] cookiesInResponse=res.getCookies();
+         return cookiesInResponse;
+}
+
 function testGetHeader(http:Response res, string key) returns @tainted string {
     string contentType = res.getHeader(key);
     return contentType;

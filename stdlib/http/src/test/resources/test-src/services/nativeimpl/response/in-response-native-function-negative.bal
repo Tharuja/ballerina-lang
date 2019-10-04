@@ -36,3 +36,18 @@ function testRemoveAllHeaders(http:Response ress) returns (http:Response) {
     res.removeAllHeaders();
     return res;
 }
+
+function testAddCookie(http:Response res) returns http:Response {
+     http:Cookie cookie = new;
+     cookie.name="";
+     cookie.value="";
+     cookie.path = "mail";
+     res.addCookie(cookie);
+     return res;
+}
+
+
+function testGetCookies(http:Response res) returns @tainted http:Cookie[]{
+     http:Cookie[] cookiesInResponse=res.getCookies();
+     return cookiesInResponse;
+}

@@ -20,6 +20,7 @@ package org.ballerinalang.stdlib.services.nativeimpl.response;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.cookie.Cookie;
 import org.apache.axiom.om.OMNode;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.values.MapValueImpl;
@@ -35,10 +36,7 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.stdlib.utils.HTTPTestRequest;
-import org.ballerinalang.stdlib.utils.MessageUtils;
-import org.ballerinalang.stdlib.utils.Services;
-import org.ballerinalang.stdlib.utils.TestEntityUtils;
+import org.ballerinalang.stdlib.utils.*;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -131,6 +129,32 @@ public class ResponseNativeFunctionSuccessTest {
         HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
         Assert.assertEquals(returnHeaders.get(headerName), headerValue);
 
+    }
+    @Test
+    public void testGetCookies() {
+        ObjectValue inResponse = createResponseObject();
+        HttpCarbonMessage inResponseMsg = HttpUtil.createHttpCarbonMessage(false);
+        inResponseMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_FORM);
+        inResponseMsg.setHttpStatusCode(200);
+        HttpUtil.addCarbonMsg(inResponse, inResponseMsg);
+
+        ObjectValue entity = createEntityObject();
+        HttpUtil.populateInboundResponse(inResponse, entity, inResponseMsg);
+
+        String name, value,domain,path,expires;
+        int maxAge;
+        boolean httpOnly,secure;
+
+        //Cookie[] cookies=new Cookie[1];
+      //  cookies[0]={name:"SID002", value:"239d4dmnmsddd34", domain:"google.com", path:"/sample", maxAge:3600, expires:"Mon, 26 Jun 2017 05:46:22 GMT", httpOnly:true, secure:true};
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetCookies",
+                new Object[]{ inResponse });
+        Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
+      // Assert.assertEquals(returnVals,{name:"SID002", value:"239d4dmnmsddd34", domain:"google.com", path:"/sample", maxAge:3600, expires:"Mon, 26 Jun 2017 05:46:22 GMT", httpOnly:true, secure:true});
+      //  Assert.assertEquals(returnVals[0].stringValue(),"[{name:\"SID002\", value:\"239d4dmnmsddd34\", domain:\"google.com\", path:\"/sample\", maxAge:3600, expires:\"Mon, 26 Jun 2017 05:46:22 GMT\", httpOnly:true, secure:true}]");
+        BValueArray arr = (BValueArray) returnVals[0];
+
+        Assert.assertEquals(arr.stringValue(), "[{name:\"SID002\", value:\"239d4dmnmsddd34\", domain:\"google.com\", path:\"/sample\", maxAge:3600, expires:\"Mon, 26 Jun 2017 05:46:22 GMT\", httpOnly:true, secure:true}]");
     }
 
     @Test(description = "Test addHeader function within a service")

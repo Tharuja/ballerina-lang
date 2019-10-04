@@ -423,24 +423,25 @@ public type Response object {
 
     }
 
+    
+
     # Gets cookies from the response.
     #
     # + return - An array of cookie objects which are included in the response.
-    public function getCookies() returns @tainted Cookie[]
-    {
+    public function getCookies() returns @tainted Cookie[] {
       Cookie[] cookiesInResponse=[];
       string[] cookiesStringValues = self.getHeaders("Set-Cookie");
-
-      int i=0;
-          foreach string cookiesStringValue in cookiesStringValues {
-          cookiesInResponse[i]=toCookie(cookiesStringValue);
-          i=i+1;
-          }
+       if(cookiesStringValues.length()!=0){
+             int i=0;
+             foreach string cookiesStringValue in cookiesStringValues {
+                 //TODO:parseCookieHeader
+                cookiesInResponse[i]=toCookie(cookiesStringValue);
+                i=i+1;
+             }
+       }
+       else {
+           log:printWarn("No cookies in the response");
+       }
       return cookiesInResponse;
-
     }
-
-
-
-
 };

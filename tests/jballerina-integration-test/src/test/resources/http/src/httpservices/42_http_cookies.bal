@@ -49,10 +49,10 @@ service cookie on new http:Listener(9251) {
      var result = caller->respond(res);
     }
 
-    @http:ResourceConfig {
-        methods: ["GET"],
-          path: "/getCookies"
-    }
+    //@http:ResourceConfig {
+    //    methods: ["GET"],
+    //      path: "/getCookies"
+    //}
     //resource function getCookies(http:Caller caller, http:Request req) {
     ////Creates a new cookie
     // http:Cookie Cookie1=new;

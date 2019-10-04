@@ -91,7 +91,7 @@ import ballerina/stringutils;
                 if(self.path!=""){
                        setCookieHeaderValue= appendNameValuePair(setCookieHeaderValue,"Path",self.path);
                }
-                 if(self.expires!="" && self.convertTime()){
+                 if(self.expires!="" && self.toGMTTimeFormat()){
                        setCookieHeaderValue= appendNameValuePair(setCookieHeaderValue,"Expires",self.expires);
                }
                 if(self.maxAge>0){
@@ -109,7 +109,7 @@ import ballerina/stringutils;
               return setCookieHeaderValue;
          }
 
-         public function convertTime() returns boolean{
+         public function toGMTTimeFormat() returns boolean{
             self.t1= time:parse(self.expires,"yyyy-MM-dd HH:mm:ss");
             if (self.t1 is time:Time){
                  string|error myTimeString = time:format(<time:Time>self.t1, "E, dd MMM yyyy HH:mm:ss ");
