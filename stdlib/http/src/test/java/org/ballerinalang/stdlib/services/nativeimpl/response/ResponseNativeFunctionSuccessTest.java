@@ -116,11 +116,11 @@ public class ResponseNativeFunctionSuccessTest {
 
     }
     @Test
-    public void testRemoveCookies() {
+    public void testRemoveCookiesFromRemoteStore() {
         ObjectValue outResponse = createResponseObject();
         String headerName="Set-Cookie";
         String headerValue="SID3=31d4d96e407aad42; Expires=Sat, 12 Mar 1994 08:12:22 GMT";
-        BValue[] returnValue =BRunUtil.invoke(result, "testRemoveCookies",
+        BValue[] returnValue =BRunUtil.invoke(result, "testRemoveCookiesFromRemoteStore",
                 new Object[]{ outResponse});
         Assert.assertFalse(returnValue.length == 0 || returnValue[0] == null, "Invalid Return Values.");
         Assert.assertTrue(returnValue[0] instanceof BMap);

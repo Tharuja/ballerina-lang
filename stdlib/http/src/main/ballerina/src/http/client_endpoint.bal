@@ -229,7 +229,7 @@ public type TargetService record {|
 # + auth - HTTP authentication related configurations
 # + circuitBreaker - Configurations associated with Circuit Breaker behaviour
 # + retryConfig - Configurations associated with Retry
-# + cookieConfig - Configurations associated with Cookie
+# + cookieConfig - Configurations associated with Cookies
 public type ClientConfiguration record {|
     string httpVersion = HTTP_1_1;
     ClientHttp1Settings http1Settings = {};
@@ -416,11 +416,12 @@ function checkForRetry(string url, ClientConfiguration config) returns HttpClien
     if (retryConfigVal is RetryConfig) {
         return createRetryClient(url, config);
     } else {
-        if (config.cache.enabled) {
-            return createHttpCachingClient(url, config, config.cache);
-        } else {
-            return createHttpSecureClient(url, config);
-        }
+        //if (config.cache.enabled) {
+        //    return createHttpCachingClient(url, config, config.cache);
+        //} else {
+        //    return createHttpSecureClient(url, config);
+        //}
+         return createCookieClient(url, config);
     }
 }
 
@@ -473,11 +474,12 @@ function createCircuitBreakerClient(string uri, ClientConfiguration configuratio
         return new CircuitBreakerClient(uri, configuration, circuitBreakerInferredConfig, cbHttpClient, circuitHealth);
     } else {
         //remove following once we can ignore
-        if (configuration.cache.enabled) {
-            return createHttpCachingClient(uri, configuration, configuration.cache);
-        } else {
-            return createHttpSecureClient(uri, configuration);
-        }
+        //if (configuration.cache.enabled) {
+        //    return createHttpCachingClient(uri, configuration, configuration.cache);
+        //} else {
+        //    return createHttpSecureClient(uri, configuration);
+        //}
+        return createCookieClient(uri, configuration);
     }
 }
 
@@ -492,27 +494,71 @@ function createRetryClient(string url, ClientConfiguration configuration) return
             maxWaitIntervalInMillis: retryConfig.maxWaitIntervalInMillis,
             statusCodes: statusCodes
         };
-        if (configuration.cache.enabled) {
-            var httpCachingClient = createHttpCachingClient(url, configuration, configuration.cache);
-            if (httpCachingClient is HttpClient) {
-                return new RetryClient(url, configuration, retryInferredConfig, httpCachingClient);
-            } else {
-                return httpCachingClient;
-            }
+        //if (configuration.cache.enabled) {
+        //    var httpCachingClient = createHttpCachingClient(url, configuration, configuration.cache);
+        //    if (httpCachingClient is HttpClient) {
+        //        return new RetryClient(url, configuration, retryInferredConfig, httpCachingClient);
+        //    } else {
+        //        return httpCachingClient;
+        //    }
+        //} else {
+        //    var httpSecureClient = createHttpSecureClient(url, configuration);
+        //    if (httpSecureClient is HttpClient) {
+        //        return new RetryClient(url, configuration, retryInferredConfig, httpSecureClient);
+        //    } else {
+        //        return httpSecureClient;
+        //    }
+        //}
+        var httpCookieClient = createCookieClient(url, configuration);
+        if (httpCookieClient is HttpClient) {
+            return new RetryClient(url, configuration, retryInferredConfig, httpCookieClient);
         } else {
-            var httpSecureClient = createHttpSecureClient(url, configuration);
-            if (httpSecureClient is HttpClient) {
-                return new RetryClient(url, configuration, retryInferredConfig, httpSecureClient);
-            } else {
-                return httpSecureClient;
-            }
+            return httpCookieClient;
         }
     } else {
         //remove following once we can ignore
-        if (configuration.cache.enabled) {
-            return createHttpCachingClient(url, configuration, configuration.cache);
+        //if (configuration.cache.enabled) {
+        //    return createHttpCachingClient(url, configuration, configuration.cache);
+        //} else {
+        //    return createHttpSecureClient(url, configuration);
+        //}
+        return createCookieClient(url, configuration);
+    }
+}
+
+function createCookieClient(string url, ClientConfiguration configuration) returns HttpClient|ClientError {
+    var cookieConfigVal = configuration.cookieConfig;
+    if (cookieConfigVal is CookieConfig) {
+        if (cookieConfigVal.enabled) {
+            if (configuration.cache.enabled) {
+                //return new CookieClient(url, configuration, cookieConfigVal, createHttpCachingClient(url, configuration, configuration.cache));
+                var httpCachingClient = createHttpCachingClient(url, configuration, configuration.cache);
+                if (httpCachingClient is HttpClient) {
+                    return new CookieClient(url, configuration, cookieConfigVal, httpCachingClient);
+                } else {
+                    return httpCachingClient;
+                }
+            } else {
+                // return new CookieClient(url, configuration, cookieConfigVal, createHttpSecureClient(url, configuration));
+                var httpSecureClient = createHttpSecureClient(url, configuration);
+                if (httpSecureClient is HttpClient) {
+                    return new CookieClient(url, configuration, cookieConfigVal, httpSecureClient);
+                } else {
+                    return httpSecureClient;
+                }
+            }
         } else {
-            return createHttpSecureClient(url, configuration);
+            return createDefaultClient(url, configuration);
         }
+    } else{
+        return createDefaultClient(url, configuration);
+    }
+}
+
+function createDefaultClient(string url, ClientConfiguration configuration) returns HttpClient|ClientError {
+    if (configuration.cache.enabled) {
+        return createHttpCachingClient(url, configuration, configuration.cache);
+    } else {
+        return createHttpSecureClient(url, configuration);
     }
 }

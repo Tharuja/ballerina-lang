@@ -29,9 +29,9 @@ service cookie on new http:Listener(9251) {
 
   @http:ResourceConfig {
         methods: ["GET"],
-          path: "/removeCookies"
+          path: "/removeCookiesFromRemoteStore"
     }
-    resource function removeCookiesFromCookieStore(http:Caller caller, http:Request req) {
+    resource function removeCookiesFromRemoteStore(http:Caller caller, http:Request req) {
     //Creates a new cookie
      http:Cookie Cookie1=new;
      Cookie1.name="SID002";
@@ -45,7 +45,7 @@ service cookie on new http:Listener(9251) {
 
      http:Response res = new;
      // Removes the added cookie from client's cookie store.
-     res.removeCookiesFromCookieStore(Cookie1);
+     res.removeCookiesFromRemoteStore(Cookie1);
      var result = caller->respond(res);
     }
 

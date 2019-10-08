@@ -32,13 +32,13 @@ function testAddCookie(http:Response res) returns http:Response {
 }
 
 
-function testRemoveCookies(http:Response res)  returns http:Response {
+function testRemoveCookiesFromRemoteStore(http:Response res)  returns http:Response {
      http:Cookie cookie = new;
      cookie.name="SID3";
      cookie.value="31d4d96e407aad42";
      cookie.expires="2017-06-26 05:46:22";
 
-    res.removeCookiesFromCookieStore(cookie);
+    res.removeCookiesFromRemoteStore(cookie);
     return res;
 
 }

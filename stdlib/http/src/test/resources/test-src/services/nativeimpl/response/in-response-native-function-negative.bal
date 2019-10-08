@@ -37,17 +37,45 @@ function testRemoveAllHeaders(http:Response ress) returns (http:Response) {
     return res;
 }
 
-function testAddCookie(http:Response res) returns http:Response {
+function testAddCookieWithInvalidName(http:Response res) returns http:Response {
+    http:Cookie cookie = new;
+    cookie.name = "";
+    cookie.value = "AD4567323";
+    cookie.path = "/sample";
+    cookie.expires = "2017-06-26 05:46:22";
+    res.addCookie(cookie);
+    return res;
+}
+
+function testAddCookieWithInvalidValue(http:Response res) returns http:Response {
      http:Cookie cookie = new;
-     cookie.name="";
-     cookie.value="";
-     cookie.path = "mail";
+     cookie.name = "SID002";
+     cookie.value = "";
+     cookie.path = "/sample";
+     cookie.expires = "2017-06-26 05:46:22";
+     res.addCookie(cookie);
+     return res;
+}
+
+function testAddCookieWithInvalidPath(http:Response res) returns http:Response {
+     http:Cookie cookie = new;
+     cookie.name = "SID002";
+     cookie.value = "AD4567323";
+     cookie.path = "sample";
+     cookie.expires = "2017-06-26 05:46:22";
+     res.addCookie(cookie);
+     return res;
+}
+
+function testAddCookieWithInvalidExpires(http:Response res) returns http:Response {
+     http:Cookie cookie = new;
+     cookie.name = "SID002";
+     cookie.value = "AD4567323";
+     cookie.path = "/sample";
+     cookie.expires = "2017 13 42 05:70:22";
      res.addCookie(cookie);
      return res;
 }
 
 
-function testGetCookies(http:Response res) returns @tainted http:Cookie[]{
-     http:Cookie[] cookiesInResponse=res.getCookies();
-     return cookiesInResponse;
-}
+

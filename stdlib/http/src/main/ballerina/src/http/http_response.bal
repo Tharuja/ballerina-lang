@@ -402,46 +402,35 @@ public type Response object {
     #
     # + cookie - The cookie which is added to response
     public function addCookie(Cookie cookie) {
-
-        if (cookie.isValid()) {
-                self.addHeader("Set-Cookie", cookie.toStringValue());
-            } else {
-                log:printWarn("Invalid cookie");
-            }
+        var result = cookie.isValid();
+        if (result is boolean) {
+            self.addHeader("Set-Cookie", cookie.toStringValue());
+        } else {
+            log:printError("Invalid Cookie", result);
+        }
     }
-
 
     # Deletes cookies in the client's cookie store by server .
     #
     # + cookiesToRemove - Cookies to be deleted.
-    public function removeCookiesFromCookieStore(Cookie...cookiesToRemove)
-    {
+    public function removeCookiesFromRemoteStore(Cookie...cookiesToRemove) {
         foreach var cookie in cookiesToRemove {
-             cookie.expires="1994-03-12 08:12:22";
+            cookie.expires = "1994-03-12 08:12:22";
              self.addCookie(cookie);
-     }
-
+        }
     }
-
-    
 
     # Gets cookies from the response.
     #
     # + return - An array of cookie objects which are included in the response.
     public function getCookies() returns @tainted Cookie[] {
-      Cookie[] cookiesInResponse=[];
-      string[] cookiesStringValues = self.getHeaders("Set-Cookie");
-       if(cookiesStringValues.length()!=0){
-             int i=0;
-             foreach string cookiesStringValue in cookiesStringValues {
-                 //TODO:parseCookieHeader
-                cookiesInResponse[i]=toCookie(cookiesStringValue);
-                i=i+1;
-             }
-       }
-       else {
-           log:printWarn("No cookies in the response");
-       }
+        Cookie[] cookiesInResponse = [];
+        string[] cookiesStringValues = self.getHeaders("Set-Cookie");
+        int i = 0;
+        foreach string cookiesStringValue in cookiesStringValues {
+            cookiesInResponse[i] = parseCookieHeader(cookiesStringValue);
+            i = i + 1;
+        }
       return cookiesInResponse;
     }
 };
