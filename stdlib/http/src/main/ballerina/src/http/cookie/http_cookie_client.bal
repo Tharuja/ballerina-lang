@@ -35,7 +35,7 @@ public type CookieClient object {
 
     # Create a cookie client with the given configurations.
     #
-    # + serviceUri - Target service url
+    # + url - Target service url
     # + config - HTTP ClientEndpointConfig to be used for HTTP client invocation
     # + cookieConfig - Configurations associated with cookies
     # + httpClient - HTTP client for outbound HTTP requests
@@ -55,7 +55,6 @@ public type CookieClient object {
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public function get(string path, public RequestMessage message = ()) returns @tainted Response|ClientError {
         log:printInfo("Cookie client get");
-        //Request request = buildRequest(message);
         Request request = <Request>message;
         return self.httpClient->get(path, message = request);
 
@@ -70,7 +69,6 @@ public type CookieClient object {
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public function post(string path, RequestMessage message) returns Response|ClientError {
         log:printInfo("Cookie client post");
-        //Request request = buildRequest(message);
         Request request = <Request>message;
         return self.httpClient->post(path, request);
 
@@ -84,7 +82,6 @@ public type CookieClient object {
     #             `byte[]`, `io:ByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public function head(string path, public RequestMessage message = ()) returns @tainted Response|ClientError {
-        //Request request = buildRequest(message);
         Request request = <Request>message;
         return self.httpClient->head(path, message = request);
     }
@@ -97,7 +94,6 @@ public type CookieClient object {
     #             `io:ByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public function put(string path, RequestMessage message) returns Response|ClientError {
-        //Request request = buildRequest(message);
         Request request = <Request>message;
         return self.httpClient->put(path, request);
     }
@@ -120,7 +116,6 @@ public type CookieClient object {
     #             `io:ByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public function execute(string httpVerb, string path, RequestMessage message) returns Response|ClientError {
-        //Request request = buildRequest(message);
         log:printInfo("Cookie client execute");
         Request request = <Request>message;
         return self.httpClient->execute(httpVerb, path, request);
@@ -134,7 +129,6 @@ public type CookieClient object {
     #             `io:ByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public function patch(string path, RequestMessage message) returns Response|ClientError  {
-        //Request request = buildRequest(message);
         Request request = <Request>message;
         return self.httpClient->patch(path, request);
     }
@@ -148,7 +142,6 @@ public type CookieClient object {
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public function delete(string path, public RequestMessage message = ()) returns Response|ClientError  {
         log:printInfo("Cookie client delete");
-        //Request request = buildRequest(message);
         Request request = <Request>message;
         return self.httpClient->delete(path, request);
     }
@@ -161,7 +154,6 @@ public type CookieClient object {
     #             `byte[]`, `io:ByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public function options(string path, public RequestMessage message = ()) returns Response|ClientError {
-        //Request request = buildRequest(message);
         Request request = <Request>message;
         return self.httpClient->options(path, message = request);
     }
@@ -176,7 +168,6 @@ public type CookieClient object {
     #             `io:ByteChannel` or `mime:Entity[]`
     # + return - An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
     public function submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|ClientError {
-        //Request request = buildRequest(message);
         Request request = <Request>message;
         return self.httpClient->submit(httpVerb, path, request);
     }
