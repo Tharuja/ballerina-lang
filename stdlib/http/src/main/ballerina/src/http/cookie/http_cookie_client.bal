@@ -16,7 +16,7 @@
 
 //import ballerina/config;
 //import ballerina/io;
-import ballerina/log;
+//import ballerina/log;
 //import ballerina/mime;
 //import ballerina/time;
 
@@ -26,12 +26,14 @@ import ballerina/log;
 # + config - HTTP ClientEndpointConfig to be used for HTTP client invocation
 # + cookieConfig - Configurations associated with cookies
 # + httpClient - HTTP client for outbound HTTP requests
+# + cookieStore - Store to keep cookies of the client
 public type CookieClient object {
 
     public string url;
     public ClientConfiguration config;
     public CookieConfig cookieConfig;
     public HttpClient httpClient;
+    public CookieStore cookieStore;
 
     # Create a cookie client with the given configurations.
     #
@@ -39,11 +41,13 @@ public type CookieClient object {
     # + config - HTTP ClientEndpointConfig to be used for HTTP client invocation
     # + cookieConfig - Configurations associated with cookies
     # + httpClient - HTTP client for outbound HTTP requests
-     public function __init(string url, ClientConfiguration config, CookieConfig cookieConfig, HttpClient httpClient) {
+    # + cookieStore - Store to keep cookies of the client
+     public function __init(string url, ClientConfiguration config, CookieConfig cookieConfig, HttpClient httpClient, CookieStore cookieStore) {
         self.url = url;
         self.config = config;
         self.cookieConfig = cookieConfig;
         self.httpClient = httpClient;
+        self.cookieStore = cookieStore;
     }
 
     # If the received response for the `get()` action is redirect eligible, redirect will be performed automatically
@@ -54,10 +58,10 @@ public type CookieClient object {
     #             `byte[]`, `io:ByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public function get(string path, public RequestMessage message = ()) returns @tainted Response|ClientError {
-        log:printInfo("Cookie client get");
         Request request = <Request>message;
-        return self.httpClient->get(path, message = request);
-
+        AddStoredCookiesToRequest(self.url, path, self.cookieStore, request);
+        var inboundResponse = self.httpClient->get(path, message = request);
+        return AddCookiesInResponseToStore(inboundResponse, self.cookieStore, self.cookieConfig, self.url, path);
     }
 
     # If the received response for the `post()` action is redirect eligible, redirect will be performed automatically
@@ -68,10 +72,10 @@ public type CookieClient object {
     #             `io:ByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public function post(string path, RequestMessage message) returns Response|ClientError {
-        log:printInfo("Cookie client post");
         Request request = <Request>message;
-        return self.httpClient->post(path, request);
-
+        AddStoredCookiesToRequest(self.url, path, self.cookieStore, request);
+        var inboundResponse = self.httpClient->post(path, request);
+        return AddCookiesInResponseToStore(inboundResponse, self.cookieStore, self.cookieConfig, self.url, path);
     }
 
     # If the received response for the `head()` action is redirect eligible, redirect will be performed automatically
@@ -83,7 +87,9 @@ public type CookieClient object {
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public function head(string path, public RequestMessage message = ()) returns @tainted Response|ClientError {
         Request request = <Request>message;
-        return self.httpClient->head(path, message = request);
+        AddStoredCookiesToRequest(self.url, path, self.cookieStore, request);
+        var inboundResponse = self.httpClient->head(path, message = request);
+        return AddCookiesInResponseToStore(inboundResponse, self.cookieStore, self.cookieConfig, self.url, path);
     }
 
     # If the received response for the `put()` action is redirect eligible, redirect will be performed automatically
@@ -95,7 +101,9 @@ public type CookieClient object {
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public function put(string path, RequestMessage message) returns Response|ClientError {
         Request request = <Request>message;
-        return self.httpClient->put(path, request);
+        AddStoredCookiesToRequest(self.url, path, self.cookieStore, request);
+        var inboundResponse = self.httpClient->put(path, request);
+        return AddCookiesInResponseToStore(inboundResponse, self.cookieStore, self.cookieConfig, self.url, path);
     }
 
     # The `forward()` function is used to invoke an HTTP call with inbound request's HTTP verb.
@@ -104,7 +112,9 @@ public type CookieClient object {
     # + request - An HTTP inbound request message
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public function forward(string path, Request request) returns Response|ClientError{
-        return self.httpClient->forward(path, request);
+        AddStoredCookiesToRequest(self.url, path, self.cookieStore, request);
+        var inboundResponse = self.httpClient->forward(path, request);
+        return AddCookiesInResponseToStore(inboundResponse, self.cookieStore, self.cookieConfig, self.url, path);
     }
 
     # The `execute()` sends an HTTP request to a service with the specified HTTP verb. Redirect will be performed
@@ -116,9 +126,10 @@ public type CookieClient object {
     #             `io:ByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public function execute(string httpVerb, string path, RequestMessage message) returns Response|ClientError {
-        log:printInfo("Cookie client execute");
         Request request = <Request>message;
-        return self.httpClient->execute(httpVerb, path, request);
+        AddStoredCookiesToRequest(self.url, path, self.cookieStore, request);
+        var inboundResponse = self.httpClient->execute(httpVerb, path, request);
+        return AddCookiesInResponseToStore(inboundResponse, self.cookieStore, self.cookieConfig, self.url, path);
     }
 
     # If the received response for the `patch()` action is redirect eligible, redirect will be performed automatically
@@ -130,7 +141,9 @@ public type CookieClient object {
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public function patch(string path, RequestMessage message) returns Response|ClientError  {
         Request request = <Request>message;
-        return self.httpClient->patch(path, request);
+        AddStoredCookiesToRequest(self.url, path, self.cookieStore, request);
+        var inboundResponse =  self.httpClient->patch(path, request);
+        return AddCookiesInResponseToStore(inboundResponse, self.cookieStore, self.cookieConfig, self.url, path);
     }
 
     # If the received response for the `delete()` action is redirect eligible, redirect will be performed automatically
@@ -141,9 +154,10 @@ public type CookieClient object {
     #             `io:ByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public function delete(string path, public RequestMessage message = ()) returns Response|ClientError  {
-        log:printInfo("Cookie client delete");
         Request request = <Request>message;
-        return self.httpClient->delete(path, request);
+        AddStoredCookiesToRequest(self.url, path, self.cookieStore, request);
+        var inboundResponse =  self.httpClient->delete(path, request);
+        return AddCookiesInResponseToStore(inboundResponse, self.cookieStore, self.cookieConfig, self.url, path);
     }
 
     # If the received response for the `options()` action is redirect eligible, redirect will be performed automatically
@@ -155,7 +169,9 @@ public type CookieClient object {
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public function options(string path, public RequestMessage message = ()) returns Response|ClientError {
         Request request = <Request>message;
-        return self.httpClient->options(path, message = request);
+        AddStoredCookiesToRequest(self.url, path, self.cookieStore, request);
+        var inboundResponse =  self.httpClient->options(path, message = request);
+        return AddCookiesInResponseToStore(inboundResponse, self.cookieStore, self.cookieConfig, self.url, path);
     }
 
     # Submits an HTTP request to a service with the specified HTTP verb.
@@ -211,4 +227,21 @@ public type CookieClient object {
     public function rejectPromise(PushPromise promise) {
         self.httpClient->rejectPromise(promise);
     }
+
+
 };
+
+function AddStoredCookiesToRequest(string url, string path, CookieStore cookieStore, Request request) {
+     Cookie[] cookiesToSend = cookieStore.getCookies(url, path);
+            if(cookiesToSend.length() != 0) {
+                //has requested before and has cookies
+                request.addCookies(cookiesToSend);
+            }
+}
+function AddCookiesInResponseToStore(Response|ClientError inboundResponse, @tainted CookieStore cookieStore, CookieConfig cookieConfig, string url, string path) returns Response|ClientError {
+        if (inboundResponse is Response) {
+            Cookie[] cookiesInResponse = inboundResponse.getCookies();
+            cookieStore.addCookies(cookiesInResponse, cookieConfig, url, path );
+        }
+        return inboundResponse;
+}

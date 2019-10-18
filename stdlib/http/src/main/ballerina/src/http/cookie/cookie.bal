@@ -28,7 +28,10 @@ import ballerina/stringutils;
 # + expires - maximum lifetime of the cookie, represented as date and time at which the cookie expires.
 # + httpOnly - cookie is sent only to http requests.
 # + secure - cookie is sent only to secure channels.
-# + t1 - before time.
+# + t1 - time used to foramt the expires time.
+# + creationTime - creation time of the cookie.
+# + lastAccessedTime - last accessed time of the cookie.
+# + hostOnly - cookie is sent only to the current host.
 
 public type Cookie object {
 
@@ -40,6 +43,9 @@ public type Cookie object {
     public string expires = "";
     public boolean httpOnly = false;
     public boolean secure = false;
+    public time:Time|error creationTime = time:currentTime();
+    public time:Time|error lastAccessedTime = time:currentTime();
+    public boolean hostOnly = false;
 
     time:Time|error t1 = time:currentTime();
 
@@ -143,7 +149,7 @@ public  function appendNameIntValuePair(string setCookieHeaderValue,string name,
 }
 
 //Returns the cookie object from Set-Cookie header string value.
-public function parseCookieHeader(string cookieStringValue) returns Cookie {
+public function parseSetCookieHeader(string cookieStringValue) returns Cookie {
     Cookie cookie = new;
     string cookieValue = cookieStringValue;
     string[] result = stringutils:split(cookieValue, "; ");
@@ -177,6 +183,54 @@ public function parseCookieHeader(string cookieStringValue) returns Cookie {
         }
     }
     return cookie;
+}
+
+//Sort cookies in order to make Cookie header for the request.
+public function sortCookies(Cookie[] cookiesToAdd) {
+    int i = 0;
+    int j = 0;
+    Cookie temp= new();
+    while(i< cookiesToAdd.length()) {
+        j = i + 1;
+        while(j< cookiesToAdd.length()) {
+            if (cookiesToAdd[i].path.length() < cookiesToAdd[j].path.length()) {
+                temp = cookiesToAdd[i];
+                cookiesToAdd[i] = cookiesToAdd[j];
+                cookiesToAdd[j] = temp;
+            }
+            if(cookiesToAdd[i].path.length() == cookiesToAdd[j].path.length()) {
+                //sort according to time
+                time:Time|error t1 = cookiesToAdd[i].creationTime;
+                time:Time|error t2 = cookiesToAdd[j].creationTime;
+                if (t1 is time:Time && t2 is time: Time) {
+                    if (t1.time >t2.time) {
+                        temp = cookiesToAdd[i];
+                        cookiesToAdd[i] = cookiesToAdd[j];
+                        cookiesToAdd[j] = temp;
+                    }
+                }
+            }
+            j = j + 1;
+        }
+        i = i + 1;
+    }
+}
+
+//Returns an array of cookie objects from Cookie header string value.
+public function parseCookieHeader(string cookieStringValue) returns Cookie[] {
+    Cookie[] cookiesInRequest = [];
+    string cookieValue = cookieStringValue;
+    int i = 0;
+    string[] nameValuePairs = stringutils:split(cookieValue, "; ");
+    foreach var item in nameValuePairs {
+        string[] nameValue = stringutils:split(item, "=");
+        Cookie cookie = new;
+        cookie.name = nameValue[0];
+        cookie.value = nameValue[1];
+        cookiesInRequest[i] = cookie;
+        i = i + 1;
+    }
+    return cookiesInRequest;
 }
 
 

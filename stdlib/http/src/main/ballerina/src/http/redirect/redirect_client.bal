@@ -52,6 +52,7 @@ public type RedirectClient client object {
     #             `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public function get(string path, public RequestMessage message = ()) returns Response|ClientError {
+          log:printInfo("Redirect client get");
         var result = performRedirectIfEligible(self, path, <Request>message, HTTP_GET);
         if (result is Response) {
             return result;
@@ -327,7 +328,8 @@ function redirect(Response response, HttpOperation httpVerb, Request request,
 
 function performRedirection(string location, RedirectClient redirectClient, HttpOperation redirectMethod,
                             Request request, Response response) returns @untainted HttpResponse|ClientError {
-    var retryClient = createRetryClient(location, createNewEndpointConfig(redirectClient.config));
+    CookieStore cookieStore = new;
+    var retryClient = createRetryClient(location, createNewEndpointConfig(redirectClient.config), cookieStore);
     if (retryClient is HttpClient) {
         log:printDebug(function() returns string {
                 return "Redirect using new clientEP : " + location;

@@ -16,6 +16,7 @@
 
 import ballerina/math;
 import ballerina/runtime;
+import ballerina/log;
 
 # Derived set of configurations from the `RetryConfig`.
 #
@@ -183,6 +184,7 @@ public type RetryClient client object {
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public remote function get(string path, public RequestMessage message = ()) returns Response|ClientError {
+          log:printInfo("Retry client get");
         var result = performRetryAction(path, <Request>message, HTTP_GET, self);
         if (result is HttpFuture) {
             return getInvalidTypeError();

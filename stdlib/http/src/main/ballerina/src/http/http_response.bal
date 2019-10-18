@@ -428,7 +428,7 @@ public type Response object {
         string[] cookiesStringValues = self.getHeaders("Set-Cookie");
         int i = 0;
         foreach string cookiesStringValue in cookiesStringValues {
-            cookiesInResponse[i] = parseCookieHeader(cookiesStringValue);
+            cookiesInResponse[i] = parseSetCookieHeader(cookiesStringValue);
             i = i + 1;
         }
       return cookiesInResponse;

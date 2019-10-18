@@ -219,6 +219,7 @@ public type HttpCachingClient client object {
     #             or `mime:Entity[]`
     # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
     public remote function get(string path, public RequestMessage message = ()) returns @tainted Response|ClientError {
+        log:printInfo("Cache client get");
         Request req = <Request>message;
         setRequestCacheControlHeader(req);
         return getCachedResponse(self.cache, self.httpClient, req, GET, path, self.cacheConfig.isShared, false);

@@ -17,6 +17,7 @@
 import ballerina/io;
 import ballerina/mime;
 import ballerina/stringutils;
+import ballerina/time;
 
 # Represents an HTTP request.
 #
@@ -516,6 +517,32 @@ public type Request object {
     #
     # + return - a boolean indicating entity body availability
     function checkEntityBodyAvailability() returns boolean = external;
+
+    #Add cookies to request.
+    #
+    # + cookiesToAdd - represent the cookies to be added.
+    function addCookies(Cookie[] cookiesToAdd) {
+        string cookieheader = "";
+        sortCookies(cookiesToAdd);
+        foreach var cookie in cookiesToAdd {
+            cookieheader = cookieheader + cookie.name + "=" + cookie.value + ";" + " ";
+            cookie.lastAccessedTime = time:currentTime();
+        }
+        cookieheader = cookieheader.substring(0, cookieheader.length() - 2);
+        self.addHeader("Cookie", cookieheader);
+    }
+
+    #Get cookies from the request.
+    #
+    # + return - An array of cookie objects which are included in the request.
+    public function getCookies() returns Cookie[] {
+        string cookiesStringValue = "";
+        Cookie[] cookiesInRequest = [];
+        if(self.hasHeader("Cookie")) {
+            cookiesInRequest = parseCookieHeader(self.getHeader("Cookie"));
+        }
+        return cookiesInRequest;
+    }
 };
 
 # A record for providing mutual ssl handshake results.
@@ -539,3 +566,4 @@ public const FAILED = "failed";
 
 # Not a mutual ssl connection.
 public const NONE = ();
+
