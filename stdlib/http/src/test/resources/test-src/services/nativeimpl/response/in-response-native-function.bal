@@ -31,7 +31,6 @@ function testAddCookie(http:Response res) returns http:Response {
      return res;
 }
 
-
 function testRemoveCookiesFromRemoteStore(http:Response res)  returns http:Response {
      http:Cookie cookie = new;
      cookie.name="SID3";
@@ -45,7 +44,7 @@ function testRemoveCookiesFromRemoteStore(http:Response res)  returns http:Respo
 
 function testGetCookies(http:Response res) returns @tainted http:Cookie[]{
          http:Cookie Cookie1=new;
-         Cookie1.name="SID002";
+         Cookie1.name = "SID002";
          Cookie1.value = "239d4dmnmsddd34";
          Cookie1.path = "/sample";
          Cookie1.domain = ".GOOGLE.com.";

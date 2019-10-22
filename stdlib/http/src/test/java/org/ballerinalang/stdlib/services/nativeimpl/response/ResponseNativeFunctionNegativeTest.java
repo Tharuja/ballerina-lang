@@ -253,4 +253,17 @@ public class ResponseNativeFunctionNegativeTest {
 
     }
 
+    @Test
+    public void testAddCookiesWithInvalidMaxAge() {
+        ObjectValue outResponse = createResponseObject();
+        BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieWithInvalidMaxAge", new Object[]{ outResponse });
+        Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
+        Assert.assertTrue(returnVals[0] instanceof BMap);
+        BMap<String, BValue> entityStruct =
+                (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(RESPONSE_ENTITY_FIELD);
+        HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
+        Assert.assertNull(returnHeaders.get("Set-Cookie"));
+
+    }
+
 }

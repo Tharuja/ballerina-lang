@@ -82,6 +82,10 @@ public type Cookie object {
             invalidCookieError = error("Time is not in correct format");
             return invalidCookieError;
         }
+        if (self.maxAge < 0 ) {
+            invalidCookieError = error("Max Age is less than zero");
+            return invalidCookieError;
+        }
         return true;
     }
 

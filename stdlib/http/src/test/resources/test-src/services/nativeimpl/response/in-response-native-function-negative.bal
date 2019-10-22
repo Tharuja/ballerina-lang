@@ -77,5 +77,16 @@ function testAddCookieWithInvalidExpires(http:Response res) returns http:Respons
      return res;
 }
 
+function testAddCookieWithInvalidMaxAge(http:Response res) returns http:Response {
+     http:Cookie cookie = new;
+     cookie.name = "SID002";
+     cookie.value = "AD4567323";
+     cookie.path = "sample";
+     cookie.expires = "2017-06-26 05:46:22";
+     cookie.maxAge = -3600;
+     res.addCookie(cookie);
+     return res;
+}
+
 
 

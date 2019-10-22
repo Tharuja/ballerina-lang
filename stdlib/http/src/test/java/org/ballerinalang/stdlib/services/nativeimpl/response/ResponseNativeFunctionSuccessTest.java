@@ -22,6 +22,7 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.cookie.Cookie;
 import org.apache.axiom.om.OMNode;
+import org.apache.http.cookie.CookieOrigin;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -137,24 +138,15 @@ public class ResponseNativeFunctionSuccessTest {
         inResponseMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_FORM);
         inResponseMsg.setHttpStatusCode(200);
         HttpUtil.addCarbonMsg(inResponse, inResponseMsg);
-
         ObjectValue entity = createEntityObject();
         HttpUtil.populateInboundResponse(inResponse, entity, inResponseMsg);
-
-        String name, value,domain,path,expires;
-        int maxAge;
-        boolean httpOnly,secure;
-
-        //Cookie[] cookies=new Cookie[1];
-      //  cookies[0]={name:"SID002", value:"239d4dmnmsddd34", domain:"google.com", path:"/sample", maxAge:3600, expires:"Mon, 26 Jun 2017 05:46:22 GMT", httpOnly:true, secure:true};
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetCookies",
-                new Object[]{ inResponse });
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetCookies", new Object[]{ inResponse });
         Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
-      // Assert.assertEquals(returnVals,{name:"SID002", value:"239d4dmnmsddd34", domain:"google.com", path:"/sample", maxAge:3600, expires:"Mon, 26 Jun 2017 05:46:22 GMT", httpOnly:true, secure:true});
-      //  Assert.assertEquals(returnVals[0].stringValue(),"[{name:\"SID002\", value:\"239d4dmnmsddd34\", domain:\"google.com\", path:\"/sample\", maxAge:3600, expires:\"Mon, 26 Jun 2017 05:46:22 GMT\", httpOnly:true, secure:true}]");
-        BValueArray arr = (BValueArray) returnVals[0];
+        Assert.assertTrue(returnVals.length == 1, "No objects in the Return Values");
 
-        Assert.assertEquals(arr.stringValue(), "[{name:\"SID002\", value:\"239d4dmnmsddd34\", domain:\"google.com\", path:\"/sample\", maxAge:3600, expires:\"Mon, 26 Jun 2017 05:46:22 GMT\", httpOnly:true, secure:true}]");
+
+       // BValueArray arr = (BValueArray) returnVals[0];
+       // Assert.assertEquals(arr.stringValue(), "[{name:\"SID002\", value:\"239d4dmnmsddd34\", domain:\"google.com\", path:\"/sample\", maxAge:3600, expires:\"Mon, 26 Jun 2017 05:46:22 GMT\", httpOnly:true, secure:true, creationTime:{time:1571743530480, zone:{id:\"Asia/Colombo\", offset:19800}}, lastAccessedTime:{time:1571743530480, zone:{id:\"Asia/Colombo\", offset:19800}}, hostOnly:false}]");
     }
 
     @Test(description = "Test addHeader function within a service")
