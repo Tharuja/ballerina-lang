@@ -521,15 +521,17 @@ public type Request object {
     #Add cookies to request.
     #
     # + cookiesToAdd - represent the cookies to be added.
-    function addCookies(Cookie[] cookiesToAdd) {
+    public function addCookies(Cookie[] cookiesToAdd) {
         string cookieheader = "";
         sortCookies(cookiesToAdd);
         foreach var cookie in cookiesToAdd {
             cookieheader = cookieheader + cookie.name + "=" + cookie.value + ";" + " ";
             cookie.lastAccessedTime = time:currentTime();
         }
-        cookieheader = cookieheader.substring(0, cookieheader.length() - 2);
-        self.addHeader("Cookie", cookieheader);
+        if(cookieheader != "") {
+            cookieheader = cookieheader.substring(0, cookieheader.length() - 2);
+            self.addHeader("Cookie", cookieheader);
+        }
     }
 
     #Get cookies from the request.

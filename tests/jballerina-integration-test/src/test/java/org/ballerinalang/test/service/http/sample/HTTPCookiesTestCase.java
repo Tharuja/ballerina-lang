@@ -33,4 +33,10 @@ public class HTTPCookiesTestCase extends HttpBaseTest {
 
 
     }
+//    @Test(description = "Test getting the added cookies from the inbound response")
+//    public void testGetCookiesFromResponse() throws IOException {
+//        HttpResponse response = HttpClientRuquest.doGet(serverInstance.getServiceURLHttp(9251, "cookie/getCookies"));
+//        Assert.assertNotNull(response);
+//
+//    }
 }

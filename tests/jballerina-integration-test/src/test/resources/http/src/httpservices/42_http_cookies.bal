@@ -1,4 +1,5 @@
 import ballerina/http;
+import ballerina/io ;
 
 @http:ServiceConfig {
     basePath: "/cookie"
@@ -65,13 +66,13 @@ service cookie on new http:Listener(9251) {
     // Cookie1.httpOnly = true;
     // Cookie1.secure = true;
     //
-    // http:Response res = new;
+    //http:Response res = new;
     // res.addCookie(Cookie1);
-    //  var result = caller->respond(res);
-    // //Gets the added cookies from response.
+    // var result = caller->respond(res);
+    ////Gets the added cookies from response.
     // http:Cookie[] cookiesInResponse=res.getCookies();
-    // foreach http:Cookie item in cookiesInResponse {
-    //       io:println(item.name);
+    //foreach http:Cookie item in cookiesInResponse {
+    //    io:println(item.name);
     // }
     //}
 

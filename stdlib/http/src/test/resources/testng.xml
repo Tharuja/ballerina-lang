@@ -66,6 +66,7 @@ under the License.
         <classes>
             <class name="org.ballerinalang.stdlib.services.nativeimpl.response.ResponseNativeFunctionSuccessTest"/>
             <class name="org.ballerinalang.stdlib.services.nativeimpl.response.ResponseNativeFunctionNegativeTest"/>
+            <class name="org.ballerinalang.stdlib.services.nativeimpl.request.RequestNativeFunctionSuccessTest"/>
         </classes>
     </test>
 </suite>
