@@ -67,8 +67,8 @@ public class ResponseNativeFunctionNegativeTest {
     public void testGetHeader() {
         try {
             BValue[] returnVals = BRunUtil.invoke(result, "testGetHeader",
-                                                  new Object[]{createResponseObject(),
-                                                          HttpHeaderNames.CONTENT_TYPE.toString()});
+                    new Object[]{createResponseObject(),
+                            HttpHeaderNames.CONTENT_TYPE.toString()});
             Assert.assertNull(returnVals[0]);
         } catch (Exception exception) {
             String errorMessage = exception.getMessage();

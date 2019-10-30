@@ -530,7 +530,11 @@ public type Request object {
         }
         if(cookieheader != "") {
             cookieheader = cookieheader.substring(0, cookieheader.length() - 2);
-            self.addHeader("Cookie", cookieheader);
+            if(self.hasHeader("Cookie")) {
+                self.setHeader("Cookie", cookieheader);
+            } else {
+                self.addHeader("Cookie", cookieheader);
+            }
         }
     }
 

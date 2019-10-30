@@ -231,17 +231,20 @@ public type CookieClient object {
 
 };
 
+//Get the relevant cookies from the cookieStore and add them to the request.
 function AddStoredCookiesToRequest(string url, string path, CookieStore cookieStore, Request request) {
      Cookie[] cookiesToSend = cookieStore.getCookies(url, path);
-            if(cookiesToSend.length() != 0) {
-                //has requested before and has cookies
-                request.addCookies(cookiesToSend);
-            }
-}
-function AddCookiesInResponseToStore(Response|ClientError inboundResponse, @tainted CookieStore cookieStore, CookieConfig cookieConfig, string url, string path) returns Response|ClientError {
-        if (inboundResponse is Response) {
-            Cookie[] cookiesInResponse = inboundResponse.getCookies();
-            cookieStore.addCookies(cookiesInResponse, cookieConfig, url, path );
+        if(cookiesToSend.length() != 0) {
+            //has requested before and has cookies
+            request.addCookies(cookiesToSend);
         }
-        return inboundResponse;
+}
+
+//Get the cookies from the inbound response , add them to the cookies store and return the response.
+function AddCookiesInResponseToStore(Response|ClientError inboundResponse, @tainted CookieStore cookieStore, CookieConfig cookieConfig, string url, string path) returns Response|ClientError {
+    if (inboundResponse is Response) {
+        Cookie[] cookiesInResponse = inboundResponse.getCookies();
+        cookieStore.addCookies(cookiesInResponse, cookieConfig, url, path );
+    }
+    return inboundResponse;
 }

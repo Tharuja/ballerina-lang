@@ -116,7 +116,7 @@ public type Cookie object {
     }
 
      //Converts the given time into GMT format.
-     public function toGmtFormat() returns boolean {
+     function toGmtFormat() returns boolean {
          self.t1 = time:parse(self.expires, "yyyy-MM-dd HH:mm:ss");
              if (self.t1 is time:Time) {
                  string|error myTimeString = time:format(<time:Time>self.t1, "E, dd MMM yyyy HH:mm:ss ");
@@ -135,18 +135,18 @@ const string EQUALS = "=";
 const string SPACE  = " ";
 const string SEMICOLON = ";";
 
-public  function appendNameValuePair(string setCookieHeaderValue, string name, string value) returns string {
+function appendNameValuePair(string setCookieHeaderValue, string name, string value) returns string {
     string resultString;
     resultString = setCookieHeaderValue + name + EQUALS + value + SEMICOLON + SPACE;
     return resultString;
 }
 
-public  function appendOnlyName(string setCookieHeaderValue, string name) returns string {
+function appendOnlyName(string setCookieHeaderValue, string name) returns string {
     string resultString;
     resultString = setCookieHeaderValue + name + SEMICOLON + SPACE;
     return resultString;
 }
-public  function appendNameIntValuePair(string setCookieHeaderValue,string name,int value) returns string {
+function appendNameIntValuePair(string setCookieHeaderValue,string name,int value) returns string {
     string resultString;
     resultString = setCookieHeaderValue + name + EQUALS + value.toString() + SEMICOLON + SPACE;
     return resultString;

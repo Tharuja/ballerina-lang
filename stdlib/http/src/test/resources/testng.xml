@@ -67,6 +67,8 @@ under the License.
             <class name="org.ballerinalang.stdlib.services.nativeimpl.response.ResponseNativeFunctionSuccessTest"/>
             <class name="org.ballerinalang.stdlib.services.nativeimpl.response.ResponseNativeFunctionNegativeTest"/>
             <class name="org.ballerinalang.stdlib.services.nativeimpl.request.RequestNativeFunctionSuccessTest"/>
+            <class name="org.ballerinalang.stdlib.services.nativeimpl.cookie.CookieNativeFunctionSuccessTest"/>
+            <class name="org.ballerinalang.stdlib.services.nativeimpl.cookie.CookieNativeFunctionNegativeTest"/>
         </classes>
     </test>
 </suite>
