@@ -20,12 +20,12 @@ import ballerina/time;
 
 #Represents the cookie store
 #
-# + allCookies - array to store all the cookies temporarily.
+# + allSessionCookies - array to store all the cookies temporarily.
 # + cookieCount - total number of persistent cookies stored in the cookie store.
 # + cookiesPerDomain - total number of cookies per domain.
 public type CookieStore object {
 
-    Cookie[] allCookies = [];
+    Cookie[] allSessionCookies = [];
     int cookieCount = 0;
     int cookiesPerDomain = 0;
 
@@ -37,19 +37,19 @@ public type CookieStore object {
     # + path - Resource path
     public function addCookie(Cookie cookie, CookieConfig cookieConfig, string url, string path) {
         string domain = getDomain(url);
+        Cookie? identicalCookie = getIdenticalCookie(cookie, self.allSessionCookies);
             if(checkDomain(cookie, domain, cookieConfig) && checkPath(cookie, path, cookieConfig) && checkExpiresAttr(cookie) && ((url.startsWith("http") && cookie.httpOnly) || cookie.httpOnly == false)) {
                 if(cookie.isPersistent()) {
                     if(cookieConfig.enablePersistent) {
-                        Cookie? identicalCookie = getIdenticalCookie(cookie);
                         if(identicalCookie is Cookie) {
                             if(isExpired(cookie)) {
-                                //need to delete old cookie
-                                self.removeCookie(identicalCookie);
+                                //delete old cookie
+                                boolean isRemoved = self.removeCookie(identicalCookie.name, identicalCookie.domain, identicalCookie.path);
                             } else {
                                 //delete old and add new one.(replace similar cookies)
                                 if((identicalCookie.httpOnly == true && url.startsWith("http")) || identicalCookie.httpOnly == false ) {
                                     cookie.creationTime = identicalCookie.creationTime;
-                                    self.removeCookie(identicalCookie);
+                                    boolean isRemoved =  self.removeCookie(identicalCookie.name, identicalCookie.domain, identicalCookie.path);
                                     cookie.lastAccessedTime = time:currentTime();
                                     //TODO:write to file
                                }
@@ -64,8 +64,22 @@ public type CookieStore object {
                         }
                     }
                 } else {
-                    //add session cookie
-                    self.allCookies[self.allCookies.length()] = cookie;
+                    //new cookie is a session cookie
+                    if(identicalCookie is Cookie) {
+                        //delete old and add new session cookie
+                        if((identicalCookie.httpOnly == true && url.startsWith("http")) || identicalCookie.httpOnly == false ) {
+                            cookie.creationTime = identicalCookie.creationTime;
+                            boolean isRemoved =  self.removeCookie(identicalCookie.name, identicalCookie.domain, identicalCookie.path);
+                            cookie.lastAccessedTime = time:currentTime();
+                            self.allSessionCookies[self.allSessionCookies.length()] = cookie;
+                       }
+                    } else {
+                        //add session cookie
+                        self.allSessionCookies[self.allSessionCookies.length()] = cookie;
+                        cookie.creationTime = time:currentTime();
+                        cookie.lastAccessedTime = time:currentTime();
+                    }
+
                 }
             }
     }
@@ -90,15 +104,15 @@ public type CookieStore object {
          Cookie[] cookiesToReturn = [];
          string domain = getDomain(url);
          //gets session cookies
-         foreach var cookie in self.allCookies {
+         foreach var cookie in self.allSessionCookies {
             if((url.startsWith("https") && cookie.secure) || cookie.secure == false) {
              if((url.startsWith("http") && cookie.httpOnly) || cookie.httpOnly == false) {
                  if(cookie.hostOnly == true) {
-                     if(cookie.domain == domain && pathMatch(path, cookie)) {
+                     if(cookie.domain == domain && matchPath(path, cookie)) {
                          cookiesToReturn[cookiesToReturn.length()]=cookie;
                      }
                  } else {
-                      if((domain.endsWith("." + cookie.domain) || cookie.domain == domain ) && pathMatch(path, cookie)) {
+                      if((domain.endsWith("." + cookie.domain) || cookie.domain == domain ) && matchPath(path, cookie)) {
                          cookiesToReturn[cookiesToReturn.length()]=cookie;
                       }
 
@@ -116,30 +130,31 @@ public type CookieStore object {
      # + return - All the session and persistent cookies
      public function getAllCookies() returns Cookie[] {
          //TODO:Get persistent cookies
-         return self.allCookies;
+         return self.allSessionCookies;
      }
      #Remove a specific cookie.
      #
-     # + cookieToRemove - cookie to be removed.
-     public function removeCookie(Cookie cookieToRemove) {
-         if(cookieToRemove.isPersistent()) {
-             //TODO:Remove file
-         } else {
-             //remove session cookie
-             int k = 0;
-             while(k < self.allCookies.length()) {
-                 if(cookieToRemove.name == self.allCookies[k].name && cookieToRemove.domain == self.allCookies[k].domain  && cookieToRemove.path ==  self.allCookies[k].path) {
-                     int j = k;
-                     while(j< self.allCookies.length()-1) {
-                         self.allCookies[j] = self.allCookies[j+1];
-                         j = j + 1;
-                     }
-                     Cookie lastCookie = self.allCookies.pop();
-                     break;
+     # + name - name of the cookie to be removed.
+     # + domain - domain of the cookie to be removed.
+     # + path - path of the cookie to be removed.
+     # + return - return true if the relevant cookie is removed, false otherwise
+     public function removeCookie(string name, string domain, string path) returns boolean {
+         //remove if it is a session cookie
+         int k = 0;
+         while(k < self.allSessionCookies.length()) {
+             if(name == self.allSessionCookies[k].name && domain == self.allSessionCookies[k].domain  && path ==  self.allSessionCookies[k].path) {
+                 int j = k;
+                 while(j< self.allSessionCookies.length()-1) {
+                     self.allSessionCookies[j] = self.allSessionCookies[j+1];
+                     j = j + 1;
                  }
-                 k = k + 1;
+                 Cookie lastCookie = self.allSessionCookies.pop();
+                 return true;
              }
+             k = k + 1;
          }
+         //TODO:Remove file if it is a persistent cookie
+         return false;
      }
 
      #Remove all expired cookies
@@ -150,116 +165,127 @@ public type CookieStore object {
       #Remove all the session and persistent cookies.
       public function clear() {
           //TODO:Remove all files
-          self.allCookies = [];
+          self.allSessionCookies = [];
       }
 };
 
-    function pathMatch(string path, Cookie cookie) returns boolean {
-        if(cookie.path == path) {
-            return true;
-        }
-        if(path.startsWith(cookie.path) && cookie.path.endsWith("/")) {
-            return true;
-        }
-        if(path.startsWith(cookie.path) && path[cookie.path.length()] == "/" ) {
-            return true;
-        }
-        return false;
-    }
-
-    function getDomain(string url) returns string {
-        string domain = url;
-        if(url.startsWith("https://www.")) {
-            domain = url.substring(12, url.length());
-        }
-        else if(url.startsWith("http://www.")) {
-            domain = url.substring(11, url.length());
-        }
-        else if(url.startsWith("http://")) {
-            domain = url.substring(7, url.length());
-        }
-        else if(url.startsWith("https://")) {
-            domain = url.substring(8, url.length());
-        }
-        return domain;
-    }
-
-    function checkDomain(Cookie cookie, string domain, CookieConfig cookieConfig) returns boolean {
-        if(cookie.domain == "") {
-            cookie.domain = domain;
-            cookie.hostOnly = true;
-            return true;
-        } else {
-            if(cookieConfig.blockThirdPartyCookies) {
-                cookie.hostOnly = false;
-                if(cookie.domain == domain || domain.endsWith("." + cookie.domain)) {
-                    return true;
-                } else {
-                    return false;
-                }
-            } else {
-                cookie.hostOnly = false;
-                return true;
-            }
-        }
-    }
-
-    function checkPath(Cookie cookie, string path, CookieConfig cookieConfig) returns boolean {
-        if(cookie.path == "") {
-            cookie.path = path;
-            return true;
-        } else {
-            if(cookieConfig.blockThirdPartyCookies) {
-                if(pathMatch(path, cookie)) {
-                    return true;
-                } else {
-                    return false;
-                }
-            } else {
-                return true;
-            }
-        }
-    }
-
-    function checkExpiresAttr(Cookie cookie) returns boolean {
-        if(cookie.expires != "") {
-            time:Time|error t1 = time:parse(cookie.expires.substring(0,cookie.expires.length()-4), "E, dd MMM yyyy HH:mm:ss");
-            if(t1 is time:Time){
-                int year = time:getYear(t1);
-                if(year <= 69 && year >= 0) {
-                    time:Time tmAdd = time:addDuration(t1, 2000, 0, 0, 0, 0, 0, 0);
-                    string|error timeString = time:format(tmAdd, "E, dd MMM yyyy HH:mm:ss");
-                    if (timeString is string) {
-                        cookie.expires = timeString + " GMT";
-                        return true;
-                    } else {
-                        return false;
-                    }
-                }
-                return true;
-            } else {
-                return false;
-            }
-        }
+//Returns true , if cookie path matches with request path according to rfc-6265
+function matchPath(string path, Cookie cookie) returns boolean {
+    if(cookie.path == path) {
         return true;
     }
-
-    function getIdenticalCookie(Cookie cookieToCompare) returns Cookie? {
-        //TODO:get the same name,path,domain cookies from the files
+    if(path.startsWith(cookie.path) && cookie.path.endsWith("/")) {
+        return true;
     }
+    if(path.startsWith(cookie.path) && path[cookie.path.length()] == "/" ) {
+        return true;
+    }
+    return false;
+}
+//Extracts domain name from the request url.
+function getDomain(string url) returns string {
+    string domain = url;
+    if(url.startsWith("https://www.")) {
+        domain = url.substring(12, url.length());
+    }
+    else if(url.startsWith("http://www.")) {
+        domain = url.substring(11, url.length());
+    }
+    else if(url.startsWith("http://")) {
+        domain = url.substring(7, url.length());
+    }
+    else if(url.startsWith("https://")) {
+        domain = url.substring(8, url.length());
+    }
+    return domain;
+}
 
-    function isExpired(Cookie cookie) returns boolean {
-        if(cookie.expires != "") {
-            time:Time|error cookieExpires = time:parse(cookie.expires.substring(0,cookie.expires.length()-4), "E, dd MMM yyyy HH:mm:ss");
-            time:Time curTime = time:currentTime();
-            if (cookieExpires is time:Time) {
-                if(cookieExpires.time < curTime.time){
-                    return true;
-                }
+function checkDomain(Cookie cookie, string domain, CookieConfig cookieConfig) returns boolean {
+    if(cookie.domain == "") {
+        cookie.domain = domain;
+        cookie.hostOnly = true;
+        return true;
+    } else {
+        if(cookieConfig.blockThirdPartyCookies) {
+            cookie.hostOnly = false;
+            if(cookie.domain == domain || domain.endsWith("." + cookie.domain)) {
+                return true;
             } else {
                 return false;
             }
+        } else {
+            cookie.hostOnly = false;
+            return true;
         }
-        return false;
     }
+}
+
+function checkPath(Cookie cookie, string path, CookieConfig cookieConfig) returns boolean {
+    if(cookie.path == "") {
+        cookie.path = path;
+        return true;
+    } else {
+        if(cookieConfig.blockThirdPartyCookies) {
+            if(matchPath(path, cookie)) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return true;
+        }
+    }
+}
+
+function checkExpiresAttr(Cookie cookie) returns boolean {
+    if(cookie.expires != "") {
+        time:Time|error t1 = time:parse(cookie.expires.substring(0,cookie.expires.length()-4), "E, dd MMM yyyy HH:mm:ss");
+        if(t1 is time:Time){
+            int year = time:getYear(t1);
+            if(year <= 69 && year >= 0) {
+                time:Time tmAdd = time:addDuration(t1, 2000, 0, 0, 0, 0, 0, 0);
+                string|error timeString = time:format(tmAdd, "E, dd MMM yyyy HH:mm:ss");
+                if (timeString is string) {
+                    cookie.expires = timeString + " GMT";
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+    return true;
+}
+
+function getIdenticalCookie(Cookie cookieToCompare, Cookie[] allSessionCookies) returns Cookie? {
+    //search session cookies
+    int k = 0 ;
+    while(k < allSessionCookies.length()) {
+        if(cookieToCompare.name == allSessionCookies[k].name && cookieToCompare.domain == allSessionCookies[k].domain  && cookieToCompare.path ==  allSessionCookies[k].path) {
+            return allSessionCookies[k];
+        }
+        k = k + 1;
+    }
+    //search persistent cookies
+    //TODO:get the same name,path,domain cookies from the files
+}
+
+function isExpired(Cookie cookie) returns boolean {
+    if(cookie.expires != "") {
+        time:Time|error cookieExpires = time:parse(cookie.expires.substring(0,cookie.expires.length()-4), "E, dd MMM yyyy HH:mm:ss");
+        time:Time curTime = time:currentTime();
+        if (cookieExpires is time:Time) {
+            if(cookieExpires.time < curTime.time){
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+    return false;
+}
+
 

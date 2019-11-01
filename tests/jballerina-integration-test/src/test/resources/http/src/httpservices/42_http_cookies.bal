@@ -124,10 +124,9 @@ service cookie on new http:Listener(9251) {
             //first request without cookies
             var response1 = cookieclientEndpoint->get("/cookie/addCookiesToResponse", req);
 
-            //remove Cookie
-              http:Cookie Cookie1 = cookieclientEndpoint.getCookieStore().getAllCookies()[0];
-            cookieclientEndpoint.getCookieStore().removeCookie(Cookie1);
-            //request after removed with one cookie
+            //remove session Cookie
+            boolean isRemoved = cookieclientEndpoint.getCookieStore().removeCookie("SID002", "localhost:9251", "/cookie" );
+            //request after removed a one cookie
             var response3 = cookieclientEndpoint->get("/cookie/addCookiesToResponse", req);
 
             if (response3 is http:Response) {
@@ -147,4 +146,3 @@ service cookie on new http:Listener(9251) {
         }
 
 }
-

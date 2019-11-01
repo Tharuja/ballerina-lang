@@ -209,7 +209,7 @@ function testRemoveCookieFromCookieStore() returns @tainted http:Cookie[] {
         cookieStore1.addCookie(cookie1, cookieConfigVal, "http://google.com", "/sample" );
     }
     //remove this cookie
-    cookieStore1.removeCookie(cookie1);
+    boolean isRemoved = cookieStore1.removeCookie("SID002", "google.com", "/sample");
     return cookieStore1.getAllCookies();
 }
 
