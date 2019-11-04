@@ -115,34 +115,39 @@ service cookie on new http:Listener(9251) {
         }
     }
 
-       @http:ResourceConfig {
-            methods: ["GET"],
-            path: "/removeCookieAndRequest"
-        }
-        resource function removeCookieAndRequest(http:Caller caller, http:Request req) {
-             http:Client cookieclientEndpoint = new("http://localhost:9251", { cookieConfig: { enabled: true } } );
-            //first request without cookies
-            var response1 = cookieclientEndpoint->get("/cookie/addCookiesToResponse", req);
+    @http:ResourceConfig {
+        methods: ["GET"],
+        path: "/removeCookieAndRequest"
+    }
+    resource function removeCookieAndRequest(http:Caller caller, http:Request req) {
+         http:Client cookieclientEndpoint = new("http://localhost:9251", { cookieConfig: { enabled: true } } );
+        //first request without cookies
+        var response1 = cookieclientEndpoint->get("/cookie/addCookiesToResponse", req);
 
-            //remove session Cookie
-            boolean isRemoved = cookieclientEndpoint.getCookieStore().removeCookie("SID002", "localhost:9251", "/cookie" );
-            //request after removed a one cookie
-            var response3 = cookieclientEndpoint->get("/cookie/addCookiesToResponse", req);
+        //remove session Cookie
+        boolean isRemoved = cookieclientEndpoint.getCookieStore().removeCookie("SID002", "localhost:9251", "/cookie" );
+        //request after removed a one session  cookie
+        var response3 = cookieclientEndpoint->get("/cookie/addCookiesToResponse", req);
 
-            if (response3 is http:Response) {
-                var result = caller->respond(response3);
-                if (result is error) {
-                    log:printError("Failed to respond to the caller", err = result);
-                }
-            } else {
-                http:Response res = new;
-                res.statusCode = 500;
-                res.setPayload(response3.reason());
-                var result = caller->respond(res);
-                if (result is error) {
-                    log:printError("Failed to respond to the caller", err = result);
-                }
+        if (response3 is http:Response) {
+            var result = caller->respond(response3);
+            if (result is error) {
+                log:printError("Failed to respond to the caller", err = result);
+            }
+        } else {
+            http:Response res = new;
+            res.statusCode = 500;
+            res.setPayload(response3.reason());
+            var result = caller->respond(res);
+            if (result is error) {
+                log:printError("Failed to respond to the caller", err = result);
             }
         }
+    }
 
 }
+
+
+
+//send same session cookie-should replace it
+//server wants to delete a session cookie

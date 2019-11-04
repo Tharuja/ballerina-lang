@@ -43,8 +43,8 @@ public type Cookie object {
     public string expires = "";
     public boolean httpOnly = false;
     public boolean secure = false;
-    public time:Time|error creationTime = time:currentTime();
-    public time:Time|error lastAccessedTime = time:currentTime();
+    public time:Time creationTime = time:currentTime();
+    public time:Time lastAccessedTime = time:currentTime();
     public boolean hostOnly = false;
 
     time:Time|error t1 = time:currentTime();

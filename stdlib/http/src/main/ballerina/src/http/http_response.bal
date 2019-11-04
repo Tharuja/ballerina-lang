@@ -416,6 +416,7 @@ public type Response object {
     public function removeCookiesFromRemoteStore(Cookie...cookiesToRemove) {
         foreach var cookie in cookiesToRemove {
             cookie.expires = "1994-03-12 08:12:22";
+            cookie.maxAge = 0;
              self.addCookie(cookie);
         }
     }

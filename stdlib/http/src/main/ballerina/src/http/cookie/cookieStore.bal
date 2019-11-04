@@ -34,92 +34,110 @@ public type CookieStore object {
     # + cookie - Cookie to be added.
     # + cookieConfig - Configurations associated with cookies
     # + url - Target service url
-    # + path - Resource path
-    public function addCookie(Cookie cookie, CookieConfig cookieConfig, string url, string path) {
+    # + rqstPath - Resource path
+    public function addCookie(Cookie cookie, CookieConfig cookieConfig, string url, string rqstPath) {
         string domain = getDomain(url);
+        string path  = rqstPath;
+        int? index = rqstPath.indexOf("?");
+        if(index is int) {
+            path = rqstPath.substring(0,index);
+        }
         Cookie? identicalCookie = getIdenticalCookie(cookie, self.allSessionCookies);
-            if(checkDomain(cookie, domain, cookieConfig) && checkPath(cookie, path, cookieConfig) && checkExpiresAttr(cookie) && ((url.startsWith("http") && cookie.httpOnly) || cookie.httpOnly == false)) {
-                if(cookie.isPersistent()) {
-                    if(cookieConfig.enablePersistent) {
-                        if(identicalCookie is Cookie) {
-                            if(isExpired(cookie)) {
-                                //delete old cookie
-                                boolean isRemoved = self.removeCookie(identicalCookie.name, identicalCookie.domain, identicalCookie.path);
-                            } else {
-                                //delete old and add new one.(replace similar cookies)
-                                if((identicalCookie.httpOnly == true && url.startsWith("http")) || identicalCookie.httpOnly == false ) {
-                                    cookie.creationTime = identicalCookie.creationTime;
-                                    boolean isRemoved =  self.removeCookie(identicalCookie.name, identicalCookie.domain, identicalCookie.path);
-                                    cookie.lastAccessedTime = time:currentTime();
-                                    //TODO:write to file
-                               }
-                            }
-                        } else {
-                            //check expiry and add/not add
-                            if(!isExpired(cookie)) {
-                                cookie.creationTime = time:currentTime();
-                                cookie.lastAccessedTime = time:currentTime();
-                                //TODO:write to file
-                            }
-                        }
-                    }
-                } else {
-                    //new cookie is a session cookie
-                    if(identicalCookie is Cookie) {
-                        //delete old and add new session cookie
-                        if((identicalCookie.httpOnly == true && url.startsWith("http")) || identicalCookie.httpOnly == false ) {
-                            cookie.creationTime = identicalCookie.creationTime;
-                            boolean isRemoved =  self.removeCookie(identicalCookie.name, identicalCookie.domain, identicalCookie.path);
-                            cookie.lastAccessedTime = time:currentTime();
-                            self.allSessionCookies[self.allSessionCookies.length()] = cookie;
-                       }
-                    } else {
-                        //add session cookie
-                        self.allSessionCookies[self.allSessionCookies.length()] = cookie;
-                        cookie.creationTime = time:currentTime();
+        if(!checkDomain(cookie, domain, cookieConfig)) {
+            return;
+        }
+        if(!checkPath(cookie, path, cookieConfig)) {
+            return;
+        }
+        if(!checkExpiresAttr(cookie)) {
+            return;
+        }
+        if(!((url.startsWith("http") && cookie.httpOnly) || cookie.httpOnly == false)) {
+            return;
+        }
+        if(cookie.isPersistent()) {
+            if(!cookieConfig.enablePersistent) {
+                return;
+            }
+            if(identicalCookie is Cookie) {
+                boolean isRemoved = self.removeCookie(identicalCookie.name, identicalCookie.domain, identicalCookie.path);
+                if(!isExpired(cookie)) {
+                    // add new one.(replace similar cookies)
+                    if((identicalCookie.httpOnly == true && url.startsWith("http")) || identicalCookie.httpOnly == false ) {
+                        cookie.creationTime = identicalCookie.creationTime;
                         cookie.lastAccessedTime = time:currentTime();
-                    }
-
+                        //TODO:write to file
+                   }
+                }
+            } else {
+                //check expiry and add/not add
+                if(!isExpired(cookie)) {
+                    cookie.creationTime = time:currentTime();
+                    cookie.lastAccessedTime = time:currentTime();
+                    //TODO:write to file
                 }
             }
+        } else {
+            //new cookie is a session cookie
+            if(identicalCookie is Cookie) {
+                //delete old and add new session cookie
+                if((identicalCookie.httpOnly == true && url.startsWith("http")) || identicalCookie.httpOnly == false ) {
+                    boolean isRemoved =  self.removeCookie(identicalCookie.name, identicalCookie.domain, identicalCookie.path);
+                    cookie.creationTime = identicalCookie.creationTime;
+                    cookie.lastAccessedTime = time:currentTime();
+                    self.allSessionCookies[self.allSessionCookies.length()] = cookie;
+               }
+            } else {
+                //add session cookie
+                cookie.creationTime = time:currentTime();
+                cookie.lastAccessedTime = time:currentTime();
+                self.allSessionCookies[self.allSessionCookies.length()] = cookie;
+            }
+        }
     }
+
      #Add array of cookies.
      #
      # + cookiesInResponse - Cookies to be added.
      # + cookieConfig - Configurations associated with cookies
      # + url - Target service url
-     # + path - Resource path
-     public function addCookies(Cookie[] cookiesInResponse, CookieConfig cookieConfig, string url, string path) {
+     # + rqstPath - Resource path
+     public function addCookies(Cookie[] cookiesInResponse, CookieConfig cookieConfig, string url, string rqstPath) {
          foreach var cookie in cookiesInResponse {
-             self.addCookie(cookie, cookieConfig, url, path);
+             self.addCookie(cookie, cookieConfig, url, rqstPath);
          }
      }
 
      #Get the relevant cookies according to given url and path
      #
      # + url - URL of the request URI.
-     # + path - path of the request URI.
+     # + rqstPath - path of the request URI.
      # + return - Array of matched cookies stored in the cookie store.
-     public function getCookies(string url, string path) returns Cookie[] {
+     public function getCookies(string url, string rqstPath) returns Cookie[] {
          Cookie[] cookiesToReturn = [];
          string domain = getDomain(url);
+         string path  = rqstPath;
+         int? index = rqstPath.indexOf("?");
+         if(index is int) {
+             path = rqstPath.substring(0,index);
+         }
          //gets session cookies
          foreach var cookie in self.allSessionCookies {
-            if((url.startsWith("https") && cookie.secure) || cookie.secure == false) {
-             if((url.startsWith("http") && cookie.httpOnly) || cookie.httpOnly == false) {
-                 if(cookie.hostOnly == true) {
-                     if(cookie.domain == domain && matchPath(path, cookie)) {
-                         cookiesToReturn[cookiesToReturn.length()]=cookie;
-                     }
-                 } else {
-                      if((domain.endsWith("." + cookie.domain) || cookie.domain == domain ) && matchPath(path, cookie)) {
-                         cookiesToReturn[cookiesToReturn.length()]=cookie;
-                      }
-
-                 }
+             if(!((url.startsWith("https") && cookie.secure) || cookie.secure == false)) {
+                 return cookiesToReturn;
              }
-            }
-
+             if(!((url.startsWith("http") && cookie.httpOnly) || cookie.httpOnly == false)) {
+                 return cookiesToReturn;
+             }
+             if(cookie.hostOnly == true) {
+                 if(cookie.domain == domain && matchPath(path, cookie)) {
+                     cookiesToReturn[cookiesToReturn.length()]=cookie;
+                 }
+             } else {
+                  if((domain.endsWith("." + cookie.domain) || cookie.domain == domain ) && matchPath(path, cookie)) {
+                     cookiesToReturn[cookiesToReturn.length()]=cookie;
+                  }
+             }
          }
          //TODO:Get persistent cookies by reading files
          return cookiesToReturn;
@@ -132,6 +150,7 @@ public type CookieStore object {
          //TODO:Get persistent cookies
          return self.allSessionCookies;
      }
+
      #Remove a specific cookie.
      #
      # + name - name of the cookie to be removed.
@@ -157,31 +176,18 @@ public type CookieStore object {
          return false;
      }
 
-     #Remove all expired cookies
-     public function removeExpiredCookies() {
-         //TODO:If expired remove file
-     }
+    #Remove all expired cookies
+    public function removeExpiredCookies() {
+     //TODO:If expired remove file
+    }
 
-      #Remove all the session and persistent cookies.
-      public function clear() {
-          //TODO:Remove all files
-          self.allSessionCookies = [];
-      }
+    #Remove all the session and persistent cookies.
+    public function clear() {
+      //TODO:Remove all files
+      self.allSessionCookies = [];
+    }
 };
 
-//Returns true , if cookie path matches with request path according to rfc-6265
-function matchPath(string path, Cookie cookie) returns boolean {
-    if(cookie.path == path) {
-        return true;
-    }
-    if(path.startsWith(cookie.path) && cookie.path.endsWith("/")) {
-        return true;
-    }
-    if(path.startsWith(cookie.path) && path[cookie.path.length()] == "/" ) {
-        return true;
-    }
-    return false;
-}
 //Extracts domain name from the request url.
 function getDomain(string url) returns string {
     string domain = url;
@@ -200,6 +206,7 @@ function getDomain(string url) returns string {
     return domain;
 }
 
+//Returns true , if cookie domain matches with request domain according to rfc-6265
 function checkDomain(Cookie cookie, string domain, CookieConfig cookieConfig) returns boolean {
     if(cookie.domain == "") {
         cookie.domain = domain;
@@ -220,6 +227,7 @@ function checkDomain(Cookie cookie, string domain, CookieConfig cookieConfig) re
     }
 }
 
+//Returns true , if cookie path matches with request path according to rfc-6265
 function checkPath(Cookie cookie, string path, CookieConfig cookieConfig) returns boolean {
     if(cookie.path == "") {
         cookie.path = path;
@@ -237,6 +245,20 @@ function checkPath(Cookie cookie, string path, CookieConfig cookieConfig) return
     }
 }
 
+function matchPath(string path, Cookie cookie) returns boolean {
+    if(cookie.path == path) {
+        return true;
+    }
+    if(path.startsWith(cookie.path) && cookie.path.endsWith("/")) {
+        return true;
+    }
+    if(path.startsWith(cookie.path) && path[cookie.path.length()] == "/" ) {
+        return true;
+    }
+    return false;
+}
+
+//Returns true , if cookie expires attribute value is valid according to rfc-6265
 function checkExpiresAttr(Cookie cookie) returns boolean {
     if(cookie.expires != "") {
         time:Time|error t1 = time:parse(cookie.expires.substring(0,cookie.expires.length()-4), "E, dd MMM yyyy HH:mm:ss");
@@ -260,6 +282,7 @@ function checkExpiresAttr(Cookie cookie) returns boolean {
     return true;
 }
 
+//Returns the identical cookie for a given cookie if exists
 function getIdenticalCookie(Cookie cookieToCompare, Cookie[] allSessionCookies) returns Cookie? {
     //search session cookies
     int k = 0 ;
@@ -273,7 +296,17 @@ function getIdenticalCookie(Cookie cookieToCompare, Cookie[] allSessionCookies) 
     //TODO:get the same name,path,domain cookies from the files
 }
 
+//Returns true , if cookie is expired.
 function isExpired(Cookie cookie) returns boolean {
+    if(cookie.maxAge > 0) {
+        time:Time exptime = time:addDuration(cookie.creationTime, 0, 0, 0, 0, 0, cookie.maxAge, 0);
+        time:Time curTime = time:currentTime();
+        if(exptime.time < curTime.time) {
+            return true;
+        } else {
+            return false;
+        }
+    }
     if(cookie.expires != "") {
         time:Time|error cookieExpires = time:parse(cookie.expires.substring(0,cookie.expires.length()-4), "E, dd MMM yyyy HH:mm:ss");
         time:Time curTime = time:currentTime();
