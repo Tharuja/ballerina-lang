@@ -82,6 +82,48 @@ function testSetXmlPayload(xml value) returns http:Response {
     return res;
 }
 
+function testAddCookie(http:Response res) returns http:Response {
+     http:Cookie cookie = new;
+     cookie.name = "SID3";
+     cookie.value = "31d4d96e407aad42";
+     cookie.domain = "google.com";
+     cookie.path = "/sample";
+     cookie.maxAge = 3600 ;
+     cookie.expires = "2017-06-26 05:46:22";
+     cookie.httpOnly = true;
+     cookie.secure = true;
+     res.addCookie(cookie);
+     return res;
+}
+
+function testRemoveCookiesFromRemoteStore(http:Response res)  returns http:Response {
+     http:Cookie cookie = new;
+     cookie.name="SID3";
+     cookie.value="31d4d96e407aad42";
+     cookie.expires="2017-06-26 05:46:22";
+
+    res.removeCookiesFromRemoteStore(cookie);
+    return res;
+
+}
+
+function testGetCookies(http:Response res) returns @tainted http:Cookie[]{
+         http:Cookie Cookie1=new;
+         Cookie1.name = "SID002";
+         Cookie1.value = "239d4dmnmsddd34";
+         Cookie1.path = "/sample";
+         Cookie1.domain = ".GOOGLE.com.";
+         Cookie1.maxAge = 3600 ;
+         Cookie1.expires="2017-06-26 05:46:22";
+         Cookie1.httpOnly = true;
+         Cookie1.secure = true;
+
+         res.addCookie(Cookie1);
+         //Gets the added cookies from response.
+         http:Cookie[] cookiesInResponse=res.getCookies();
+         return cookiesInResponse;
+}
+
 listener http:MockListener mockEP = new(9090);
 
 @http:ServiceConfig {basePath : "/hello"}
@@ -216,4 +258,7 @@ service hello on mockEP {
         res.setJsonPayload({value:header});
         checkpanic caller->respond(res);
     }
+
+
+
 }
