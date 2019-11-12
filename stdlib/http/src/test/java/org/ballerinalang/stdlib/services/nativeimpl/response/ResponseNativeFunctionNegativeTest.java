@@ -228,9 +228,22 @@ public class ResponseNativeFunctionNegativeTest {
     }
 
     @Test
-    public void testAddCookiesWithInvalidPath() {
+    public void testAddCookiesWithInvalidPath1() {
         ObjectValue outResponse = createResponseObject();
-        BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieWithInvalidPath", new Object[]{ outResponse });
+        BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieWithInvalidPath1", new Object[]{ outResponse });
+        Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
+        Assert.assertTrue(returnVals[0] instanceof BMap);
+        BMap<String, BValue> entityStruct =
+                (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(RESPONSE_ENTITY_FIELD);
+        HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
+        Assert.assertNull(returnHeaders.get("Set-Cookie"));
+
+    }
+
+    @Test
+    public void testAddCookiesWithInvalidPath2() {
+        ObjectValue outResponse = createResponseObject();
+        BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieWithInvalidPath2", new Object[]{ outResponse });
         Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BMap);
         BMap<String, BValue> entityStruct =

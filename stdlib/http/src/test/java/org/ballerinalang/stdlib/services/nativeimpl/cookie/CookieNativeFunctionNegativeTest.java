@@ -115,4 +115,13 @@ public class CookieNativeFunctionNegativeTest {
         Assert.assertTrue(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Cookie objects are in the Return Values");;
     }
+
+    @Test(description = "remove a specific cookie which is not in the cookie store")
+    public void testRemoveCookieFromCookieStore() {
+        BValue[] returnVals = BRunUtil.invoke(result, "testRemoveCookieFromCookieStore");
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                "Invalid Return Values.");
+        Assert.assertTrue(returnVals.length == 1, "No cookie objects in the Return Values");
+    }
+
 }

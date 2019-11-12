@@ -28,7 +28,6 @@ import ballerina/time;
 # + expires - maximum lifetime of the cookie, represented as date and time at which the cookie expires.
 # + httpOnly - cookie is sent only to http requests.
 # + secure - cookie is sent only to secure channels.
-# + t1 - time used to foramt the expires time.
 # + creationTime - creation time of the cookie.
 # + lastAccessedTime - last accessed time of the cookie.
 # + hostOnly - cookie is sent only to the current host.
@@ -46,8 +45,6 @@ public type Cookie object {
     public time:Time creationTime = time:currentTime();
     public time:Time lastAccessedTime = time:currentTime();
     public boolean hostOnly = false;
-
-    time:Time | error t1 = time:currentTime();
 
     //Returns false if the cookie will be discarded at the end of the "session"; true otherwise.
     public function isPersistent() returns boolean {
@@ -74,11 +71,11 @@ public type Cookie object {
         if (self.domain.endsWith(".")) {
             self.domain = self.domain.substring(0, self.domain.length() - 1);
         }
-        if (self.path != "" && !self.path.startsWith("/")) {
+        if (self.path != "" && (!self.path.startsWith("/") || stringutils:contains(self.path, "?"))) {
             invalidCookieError = error("Path is not in correct format ");
             return invalidCookieError;
         }
-        if (self.expires != "" && !self.toGmtFormat()) {
+        if (self.expires != "" && !toGmtFormat(self)) {
             invalidCookieError = error("Time is not in correct format");
             return invalidCookieError;
         }
@@ -115,21 +112,22 @@ public type Cookie object {
         return setCookieHeaderValue;
     }
 
-    //Converts the given time into GMT format.
-    function toGmtFormat() returns boolean {
-        self.t1 = time:parse(self.expires, "yyyy-MM-dd HH:mm:ss");
-        if (self.t1 is time:Time) {
-            string | error myTimeString = time:format(<time:Time>self.t1, "E, dd MMM yyyy HH:mm:ss ");
-            if (myTimeString is string) {
-                self.expires = myTimeString + "GMT";
-                return true;
-            }
-            return false;
-        } else {
-            return false;
-        }
-    }
 };
+
+//Converts the given time into GMT format.
+function toGmtFormat(Cookie cookie) returns boolean {
+    time:Time | error  t1 = time:parse(cookie.expires, "yyyy-MM-dd HH:mm:ss");
+    if (t1 is time:Time) {
+        string | error timeString = time:format(<time:Time>t1, "E, dd MMM yyyy HH:mm:ss ");
+        if (timeString is string) {
+            cookie.expires = timeString + "GMT";
+            return true;
+        }
+        return false;
+    } else {
+        return false;
+    }
+}
 
 const string EQUALS = "=";
 const string SPACE = " ";
@@ -189,6 +187,23 @@ public function parseSetCookieHeader(string cookieStringValue) returns Cookie {
     return cookie;
 }
 
+//Returns an array of cookie objects from Cookie header string value.
+public function parseCookieHeader(string cookieStringValue) returns Cookie[] {
+    Cookie[] cookiesInRequest = [];
+    string cookieValue = cookieStringValue;
+    int i = 0;
+    string[] nameValuePairs = stringutils:split(cookieValue, "; ");
+    foreach var item in nameValuePairs {
+        string[] nameValue = stringutils:split(item, "=");
+        Cookie cookie = new;
+        cookie.name = nameValue[0];
+        cookie.value = nameValue[1];
+        cookiesInRequest[i] = cookie;
+        i = i + 1;
+    }
+    return cookiesInRequest;
+}
+
 //Sort cookies in order to make Cookie header for the request.
 public function sortCookies(Cookie[] cookiesToAdd) {
     int i = 0;
@@ -220,22 +235,6 @@ public function sortCookies(Cookie[] cookiesToAdd) {
     }
 }
 
-//Returns an array of cookie objects from Cookie header string value.
-public function parseCookieHeader(string cookieStringValue) returns Cookie[] {
-    Cookie[] cookiesInRequest = [];
-    string cookieValue = cookieStringValue;
-    int i = 0;
-    string[] nameValuePairs = stringutils:split(cookieValue, "; ");
-    foreach var item in nameValuePairs {
-        string[] nameValue = stringutils:split(item, "=");
-        Cookie cookie = new;
-        cookie.name = nameValue[0];
-        cookie.value = nameValue[1];
-        cookiesInRequest[i] = cookie;
-        i = i + 1;
-    }
-    return cookiesInRequest;
-}
 
 
 

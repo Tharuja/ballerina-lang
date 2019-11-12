@@ -140,3 +140,20 @@ function testGetCookieToUnmatchedPath2() returns @tainted http:Cookie[] {
    return cookieStore1.getCookies("http://google.com", "/sample" );
 }
 
+function testRemoveCookieFromCookieStore() returns @tainted http:Cookie[] {
+    http:CookieStore cookieStore1 = new;
+    http:Cookie cookie1 = new;
+    cookie1.name = "SID002";
+    cookie1.value = "239d4dmnmsddd34";
+    cookie1.path = "/sample";
+    cookie1.domain = "google.com";
+    http:Client cookieclientEndpoint = new("http://google.com", { cookieConfig: { enabled: true } } );
+    var cookieConfigVal = cookieclientEndpoint.config.cookieConfig;
+    //add cookie
+    if (cookieConfigVal is http:CookieConfig) {
+        cookieStore1.addCookie(cookie1, cookieConfigVal, "http://google.com", "/sample" );
+    }
+    //remove this cookie
+    boolean isRemoved = cookieStore1.removeCookie("SID003", "google.com", "/sample");
+    return cookieStore1.getAllCookies();
+}

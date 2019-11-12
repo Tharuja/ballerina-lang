@@ -108,20 +108,20 @@ function testRemoveCookiesFromRemoteStore(http:Response res)  returns http:Respo
 }
 
 function testGetCookies(http:Response res) returns @tainted http:Cookie[]{
-         http:Cookie Cookie1=new;
-         Cookie1.name = "SID002";
-         Cookie1.value = "239d4dmnmsddd34";
-         Cookie1.path = "/sample";
-         Cookie1.domain = ".GOOGLE.com.";
-         Cookie1.maxAge = 3600 ;
-         Cookie1.expires="2017-06-26 05:46:22";
-         Cookie1.httpOnly = true;
-         Cookie1.secure = true;
+     http:Cookie cookie1 = new;
+     cookie1.name = "SID002";
+     cookie1.value = "239d4dmnmsddd34";
+     cookie1.path = "/sample";
+     cookie1.domain = ".GOOGLE.com.";
+     cookie1.maxAge = 3600 ;
+     cookie1.expires="2017-06-26 05:46:22";
+     cookie1.httpOnly = true;
+     cookie1.secure = true;
 
-         res.addCookie(Cookie1);
-         //Gets the added cookies from response.
-         http:Cookie[] cookiesInResponse=res.getCookies();
-         return cookiesInResponse;
+     res.addCookie(cookie1);
+     //Gets the added cookies from response.
+     http:Cookie[] cookiesInResponse=res.getCookies();
+     return cookiesInResponse;
 }
 
 listener http:MockListener mockEP = new(9090);
@@ -259,6 +259,62 @@ service hello on mockEP {
         checkpanic caller->respond(res);
     }
 
+    @http:ResourceConfig {
+        path:"/addCookie"
+    }
+    resource function addCookie (http:Caller caller, http:Request req) {
+        http:Response res = new;
+        http:Cookie cookie = new;
+        cookie.name = "SID3";
+        cookie.value = "31d4d96e407aad42";
+        cookie.domain = "google.com";
+        cookie.path = "/sample";
+        cookie.maxAge = 3600 ;
+        cookie.expires = "2017-06-26 05:46:22";
+        cookie.httpOnly = true;
+        cookie.secure = true;
+        res.addCookie(cookie);
+        string result = <@untainted string> res.getHeader(<@untainted string> "Set-Cookie");
+        res.setJsonPayload({SetCookieHeader:result});
+        checkpanic caller->respond(res);
+    }
+
+    @http:ResourceConfig {
+        path:"/removeCookieByServer"
+    }
+    resource function removeCookieByServer (http:Caller caller, http:Request req) {
+        http:Response res = new;
+        http:Cookie cookie = new;
+        cookie.name="SID3";
+        cookie.value="31d4d96e407aad42";
+        cookie.expires="2017-06-26 05:46:22";
+        res.removeCookiesFromRemoteStore(cookie);
+        string result = <@untainted string> res.getHeader(<@untainted string> "Set-Cookie");
+        res.setJsonPayload({SetCookieHeader:result});
+        checkpanic caller->respond(res);
+    }
+
+    @http:ResourceConfig {
+        path:"/getCookies"
+    }
+    resource function getCookies (http:Caller caller, http:Request req) {
+        http:Response res = new;
+        http:Cookie cookie1 = new;
+        cookie1.name = "SID002";
+        cookie1.value = "239d4dmnmsddd34";
+        cookie1.path = "/sample";
+        cookie1.domain = ".GOOGLE.com.";
+        cookie1.maxAge = 3600 ;
+        cookie1.expires="2017-06-26 05:46:22";
+        cookie1.httpOnly = true;
+        cookie1.secure = true;
+        res.addCookie(cookie1);
+        //Gets the added cookies from response.
+        http:Cookie[] cookiesInResponse=res.getCookies();
+        string result = <@untainted string>  cookiesInResponse[0].name ;
+        res.setJsonPayload({cookie:result});
+        checkpanic caller->respond(res);
+    }
 
 
 }

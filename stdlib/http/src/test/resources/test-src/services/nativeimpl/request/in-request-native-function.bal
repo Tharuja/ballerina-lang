@@ -431,9 +431,6 @@ service hello on mockEP {
         req.addCookies(cookiesToAdd);
         http:Cookie[] cookiesInRequest = req.getCookies();
         res.setTextPayload(<@untainted string>  cookiesInRequest[0].name );
-        res.setTextPayload(<@untainted string>  cookiesInRequest[0].value );
-        res.setTextPayload(<@untainted string>  cookiesInRequest[0].domain );
-        res.setTextPayload(<@untainted string>  cookiesInRequest[0].path );
         checkpanic caller->respond(res);
     }
 

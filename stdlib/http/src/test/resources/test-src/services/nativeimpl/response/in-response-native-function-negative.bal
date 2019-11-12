@@ -56,11 +56,21 @@ function testAddCookieWithInvalidValue(http:Response res) returns http:Response 
      return res;
 }
 
-function testAddCookieWithInvalidPath(http:Response res) returns http:Response {
+function testAddCookieWithInvalidPath1(http:Response res) returns http:Response {
      http:Cookie cookie = new;
      cookie.name = "SID002";
      cookie.value = "AD4567323";
      cookie.path = "sample";
+     cookie.expires = "2017-06-26 05:46:22";
+     res.addCookie(cookie);
+     return res;
+}
+
+function testAddCookieWithInvalidPath2(http:Response res) returns http:Response {
+     http:Cookie cookie = new;
+     cookie.name = "SID002";
+     cookie.value = "AD4567323";
+     cookie.path = "/sample?test=123";
      cookie.expires = "2017-06-26 05:46:22";
      res.addCookie(cookie);
      return res;
