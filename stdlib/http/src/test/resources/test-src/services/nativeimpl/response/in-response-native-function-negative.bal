@@ -36,6 +36,7 @@ function testRemoveAllHeaders(http:Response ress) returns (http:Response) {
     res.removeAllHeaders();
     return res;
 }
+
 function testAddCookieWithInvalidName(http:Response res) returns http:Response {
     http:Cookie cookie = new;
     cookie.name = "";

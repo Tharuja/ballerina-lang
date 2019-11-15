@@ -30,8 +30,7 @@ import ballerina/time;
 # + secure - cookie is sent only to secure channels.
 # + creationTime - creation time of the cookie.
 # + lastAccessedTime - last accessed time of the cookie.
-# + hostOnly - cookie is sent only to the current host.
-
+# + hostOnly - cookie is sent only to the requested host.
 public type Cookie object {
 
     public string name = "";
@@ -86,8 +85,8 @@ public type Cookie object {
         return true;
     }
 
-    //Gets the Cookie object in its string representation to be used in response header ‘Set-Cookie’.
-    public function toStringValue() returns string {
+    //Gets the Cookie object in its string representation to be used in ‘Set-Cookie’ header in the response .
+    function toStringValue() returns string {
         string setCookieHeaderValue = "";
         setCookieHeaderValue = appendNameValuePair(setCookieHeaderValue, self.name, self.value);
         if (self.domain != "") {
@@ -116,7 +115,7 @@ public type Cookie object {
 
 //Converts the given time into GMT format.
 function toGmtFormat(Cookie cookie) returns boolean {
-    time:Time | error  t1 = time:parse(cookie.expires, "yyyy-MM-dd HH:mm:ss");
+    time:Time | error t1 = time:parse(cookie.expires, "yyyy-MM-dd HH:mm:ss");
     if (t1 is time:Time) {
         string | error timeString = time:format(<time:Time>t1, "E, dd MMM yyyy HH:mm:ss ");
         if (timeString is string) {
@@ -138,7 +137,6 @@ function appendNameValuePair(string setCookieHeaderValue, string name, string va
     resultString = setCookieHeaderValue + name + EQUALS + value + SEMICOLON + SPACE;
     return resultString;
 }
-
 function appendOnlyName(string setCookieHeaderValue, string name) returns string {
     string resultString;
     resultString = setCookieHeaderValue + name + SEMICOLON + SPACE;
@@ -151,7 +149,7 @@ function appendNameIntValuePair(string setCookieHeaderValue, string name, int va
 }
 
 //Returns the cookie object from Set-Cookie header string value.
-public function parseSetCookieHeader(string cookieStringValue) returns Cookie {
+function parseSetCookieHeader(string cookieStringValue) returns Cookie {
     Cookie cookie = new;
     string cookieValue = cookieStringValue;
     string[] result = stringutils:split(cookieValue, "; ");
@@ -188,7 +186,7 @@ public function parseSetCookieHeader(string cookieStringValue) returns Cookie {
 }
 
 //Returns an array of cookie objects from Cookie header string value.
-public function parseCookieHeader(string cookieStringValue) returns Cookie[] {
+function parseCookieHeader(string cookieStringValue) returns Cookie[] {
     Cookie[] cookiesInRequest = [];
     string cookieValue = cookieStringValue;
     int i = 0;
@@ -204,8 +202,8 @@ public function parseCookieHeader(string cookieStringValue) returns Cookie[] {
     return cookiesInRequest;
 }
 
-//Sort cookies in order to make Cookie header for the request.
-public function sortCookies(Cookie[] cookiesToAdd) {
+//Sort cookies in order to make Cookie header in the request.
+function sortCookies(Cookie[] cookiesToAdd) {
     int i = 0;
     int j = 0;
     Cookie temp = new ();

@@ -16,74 +16,23 @@
  * under the License.
  */
 
-
 package org.ballerinalang.stdlib.services.nativeimpl.cookie;
 
-import io.netty.handler.codec.http.DefaultHttpHeaders;
-import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.XMLItem;
-import org.ballerinalang.mime.util.MimeConstants;
-import org.ballerinalang.mime.util.MimeUtil;
-import org.ballerinalang.model.util.JsonParser;
-import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.model.values.BXML;
-import org.ballerinalang.net.http.HttpConstants;
-import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.stdlib.io.channels.base.Channel;
-import org.ballerinalang.stdlib.utils.HTTPTestRequest;
-import org.ballerinalang.stdlib.utils.MessageUtils;
-import org.ballerinalang.stdlib.utils.ResponseReader;
-import org.ballerinalang.stdlib.utils.Services;
-import org.ballerinalang.stdlib.utils.TestEntityUtils;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.message.HttpCarbonMessage;
-import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
-
-import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
-import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_FORM;
-import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_JSON;
-import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_XML;
-import static org.ballerinalang.mime.util.MimeConstants.CHARSET;
-import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
-import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
-import static org.ballerinalang.mime.util.MimeConstants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
-import static org.ballerinalang.mime.util.MimeConstants.OCTET_STREAM;
-import static org.ballerinalang.mime.util.MimeConstants.REQUEST_ENTITY_FIELD;
-import static org.ballerinalang.mime.util.MimeConstants.TEXT_PLAIN;
-import static org.ballerinalang.mime.util.MimeUtil.isNotNullAndEmpty;
-import static org.ballerinalang.stdlib.utils.TestEntityUtils.enrichEntityWithDefaultMsg;
-import static org.ballerinalang.stdlib.utils.TestEntityUtils.enrichTestEntity;
-import static org.ballerinalang.stdlib.utils.TestEntityUtils.enrichTestEntityHeaders;
-//import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createEntityObject;
-//import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createRequestObject;
 
 /**
  * Test cases for ballerina/http cookie success native functions.
  */
+
 public class CookieNativeFunctionSuccessTest {
 
     private CompileResult result;
@@ -97,117 +46,154 @@ public class CookieNativeFunctionSuccessTest {
         result = BCompileUtil.compile(sourceRoot.resolve("cookie-native-function.bal").toString());
     }
 
-    @Test(description = "add cookie from the same domain and path to the cookie store")
+    @Test(description = "Test add cookie with same domain and path values as in the request url , into the cookie store")
     public void testAddCookieToCookieStore1() {
 
         BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieToCookieStore1");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
-        Assert.assertTrue(returnVals.length == 1, "No cookie objects in the Return Values");
+                "No cookie objects in the return values");
+        Assert.assertTrue(returnVals.length == 1);
+        BMap<String, BValue> bvalue = (BMap) returnVals[0];
+        Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
     }
 
-    @Test(description = "add cookie from a subdomain to the cookie store")
+    @Test(description = "Test add cookie coming from a sub domain of the cookie's domain value, into the cookie store")
     public void testAddCookieToCookieStore2() {
 
         BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieToCookieStore2");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
-        Assert.assertTrue(returnVals.length == 1, "No cookie objects in the Return Values");
+                "No cookie objects in the return values");
+        Assert.assertTrue(returnVals.length == 1);
+        BMap<String, BValue> bvalue = (BMap) returnVals[0];
+        Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
     }
 
-    @Test(description = "add the host only cookie to the cookie store")
+    @Test(description = "Test add a host only cookie into the cookie store")
     public void testAddCookieToCookieStore3() {
 
         BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieToCookieStore3");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
-        Assert.assertTrue(returnVals.length == 1, "No cookie objects in the Return Values");
+                "No cookie objects in the return values");
+        Assert.assertTrue(returnVals.length == 1);
+        BMap<String, BValue> bvalue = (BMap) returnVals[0];
+        Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
     }
 
-    @Test(description = "add cookie with unspecified path to the cookie store")
+    @Test(description = "Test add cookie with unspecified path value, into the cookie store")
     public void testAddCookieToCookieStore4() {
 
         BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieToCookieStore4");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
-        Assert.assertTrue(returnVals.length == 1, "No cookie objects in the Return Values");
+                "No cookie objects in the return values");
+        Assert.assertTrue(returnVals.length == 1);
+        BMap<String, BValue> bvalue = (BMap) returnVals[0];
+        Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
     }
 
-    @Test(description = "add cookie from a subpath to the cookie store")
+    @Test(description = "Test add cookie coming from a sub directory of the cookie's path value, into the cookie store")
     public void testAddCookieToCookieStore5() {
 
         BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieToCookieStore5");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
-        Assert.assertTrue(returnVals.length == 1, "No cookie objects in the Return Values");
+                "No cookie objects in the return values");
+        Assert.assertTrue(returnVals.length == 1);
+        BMap<String, BValue> bvalue = (BMap) returnVals[0];
+        Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
     }
 
-    @Test(description = "add array of cookies to the cookie store")
+    @Test(description = "Test add array of cookies into the cookie store")
     public void testAddCookiesToCookieStore() {
 
         BValue[] returnVals = BRunUtil.invoke(result, "testAddCookiesToCookieStore");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
-        Assert.assertTrue(returnVals.length == 2, "No cookie objects in the Return Values");
+                "No cookie objects in the return values");
+        Assert.assertTrue(returnVals.length == 2);
+        BMap<String, BValue> bvalue1 = (BMap) returnVals[0];
+        BMap<String, BValue> bvalue2 = (BMap) returnVals[1];
+        Assert.assertEquals(bvalue1.get("name").stringValue(), "SID001");
+        Assert.assertEquals(bvalue2.get("name").stringValue(), "SID002");
     }
 
-    @Test(description = "get the relevant cookie for the same domain and path from cookie store")
+    @Test(description = "Test add array of cookies into the cookie store")
+    public void testAddSimilarCookieToCookieStore() {
+
+        BValue[] returnVals = BRunUtil.invoke(result, "testAddSimilarCookieToCookieStore");
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                "No cookie objects in the return values");
+        Assert.assertTrue(returnVals.length == 1);
+        BMap<String, BValue> bvalue = (BMap) returnVals[0];
+        Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
+        Assert.assertEquals(bvalue.get("value").stringValue(), "6789mnmsddd34");
+    }
+
+    @Test(description = "Test get the relevant cookie with same domain and path values as in the request url from cookie store")
     public void testGetCookiesFromCookieStore1() {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetCookiesFromCookieStore1");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
-        Assert.assertTrue(returnVals.length == 1, "No cookie objects in the Return Values");
+                "No cookie objects in the return values");
+        Assert.assertTrue(returnVals.length == 1);
+        BMap<String, BValue> bvalue = (BMap) returnVals[0];
+        Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
     }
 
-    @Test(description = "get the relevant cookie for a sub domain from cookie store")
+    @Test(description = "Test get the relevant cookie to a sub domain of the cookie's domain value from cookie store")
     public void testGetCookiesFromCookieStore2() {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetCookiesFromCookieStore2");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
-        Assert.assertTrue(returnVals.length == 1, "No cookie objects in the Return Values");
+                "No cookie objects in the return values");
+        Assert.assertTrue(returnVals.length == 1);
+        BMap<String, BValue> bvalue = (BMap) returnVals[0];
+        Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
     }
 
-    @Test(description = "get a host only cookie for the relevant domain from cookie store")
+    @Test(description = "Test get a host only cookie to the relevant domain from cookie store")
     public void testGetCookiesFromCookieStore3() {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetCookiesFromCookieStore3");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
-        Assert.assertTrue(returnVals.length == 1, "No cookie objects in the Return Values");
+                "No cookie objects in the return values");
+        Assert.assertTrue(returnVals.length == 1);
+        BMap<String, BValue> bvalue = (BMap) returnVals[0];
+        Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
     }
 
-    @Test(description = "get the relevant cookie for a sub path from cookie store")
+    @Test(description = "Test get the relevant cookie to a sub directory of the cookie's path value from cookie store")
     public void testGetCookiesFromCookieStore4() {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetCookiesFromCookieStore4");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
-        Assert.assertTrue(returnVals.length == 1, "No cookie objects in the Return Values");
+                "No cookie objects in the return values");
+        Assert.assertTrue(returnVals.length == 1);
+        BMap<String, BValue> bvalue = (BMap) returnVals[0];
+        Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
     }
 
-    @Test(description = "get a cookie with unspecified path for the relevant path from cookie store")
+    @Test(description = "Test get a cookie with unspecified path value to the relevant path from cookie store")
     public void testGetCookiesFromCookieStore5() {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetCookiesFromCookieStore5");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
-        Assert.assertTrue(returnVals.length == 1, "No cookie objects in the Return Values");
+                "No cookie objects in the return values");
+        Assert.assertTrue(returnVals.length == 1);
+        BMap<String, BValue> bvalue = (BMap) returnVals[0];
+        Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
     }
 
-    @Test(description = "get a secure cookie for a secure url from cookie store")
+    @Test(description = "Test get a secure cookie to a secure url from cookie store")
     public void testGetSecureCookieFromCookieStore() {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetSecureCookieFromCookieStore");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
-        Assert.assertTrue(returnVals.length == 1, "No cookie objects in the Return Values");
+                "No cookie objects in the return values");
+        Assert.assertTrue(returnVals.length == 1);
+        BMap<String, BValue> bvalue = (BMap) returnVals[0];
+        Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
     }
 
-
-    @Test(description = "remove a specific cookie from cookie store")
+    @Test(description = "Test remove a specific session cookie from cookie store")
     public void testRemoveCookieFromCookieStore() {
         BValue[] returnVals = BRunUtil.invoke(result, "testRemoveCookieFromCookieStore");
         Assert.assertTrue(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Cookie objects are in the Return Values");
     }
 
-    @Test(description = "remove all cookies from cookie store")
+    @Test(description = "Test remove all session cookies from cookie store")
     public void testClearCookieStore() {
         BValue[] returnVals = BRunUtil.invoke(result, "testClearAllCookiesInCookieStore");
         Assert.assertTrue(returnVals == null || returnVals.length == 0 || returnVals[0] == null,

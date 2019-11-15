@@ -14,12 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-//import ballerina/config;
-//import ballerina/io;
-//import ballerina/log;
-//import ballerina/mime;
-//import ballerina/time;
-
 # Provides cookie functionality across HTTP client actions.
 #
 # + url - Target service url
@@ -43,11 +37,11 @@ public type CookieClient object {
     # + httpClient - HTTP client for outbound HTTP requests
     # + cookieStore - Store to keep cookies of the client
      public function __init(string url, ClientConfiguration config, CookieConfig cookieConfig, HttpClient httpClient, CookieStore cookieStore) {
-        self.url = url;
-        self.config = config;
-        self.cookieConfig = cookieConfig;
-        self.httpClient = httpClient;
-        self.cookieStore = cookieStore;
+         self.url = url;
+         self.config = config;
+         self.cookieConfig = cookieConfig;
+         self.httpClient = httpClient;
+         self.cookieStore = cookieStore;
     }
 
     # If the received response for the `get()` action is redirect eligible, redirect will be performed automatically
@@ -234,7 +228,7 @@ public type CookieClient object {
 //Get the relevant cookies from the cookieStore and add them to the request.
 function addStoredCookiesToRequest(string url, string path, CookieStore cookieStore, Request request) {
      Cookie[] cookiesToSend = cookieStore.getCookies(url, path);
-        if(cookiesToSend.length() != 0) {
+        if (cookiesToSend.length() != 0) {
             //has requested before and has cookies
             request.addCookies(cookiesToSend);
         }

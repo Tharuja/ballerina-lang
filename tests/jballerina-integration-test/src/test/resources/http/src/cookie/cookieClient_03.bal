@@ -18,7 +18,7 @@ import ballerina/http;
 import ballerina/io;
 
 public function main() {
-    http:Client cookieclientEndpoint = new ("http://localhost:9253", {cookieConfig: {enabled: true}});
+    http:Client cookieclientEndpoint = new ("http://localhost:9253", { cookieConfig: {enabled: true}});
     http:Request req = new;
     //first request -send  similar session cookies in response.
     var response = cookieclientEndpoint->get("/cookie/cookieBackend_2", req);
@@ -26,7 +26,7 @@ public function main() {
     response = cookieclientEndpoint->get("/cookie/cookieBackend_2", req);
     if (response is http:Response) {
         var payload = response.getTextPayload();
-        if(payload is string) {
+        if (payload is string) {
             io:print(payload);
         }
     }

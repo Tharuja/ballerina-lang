@@ -426,11 +426,6 @@ function checkForRetry(string url, ClientConfiguration config, CookieStore cooki
     if (retryConfigVal is RetryConfig) {
         return createRetryClient(url, config, cookieStore);
     } else {
-        //if (config.cache.enabled) {
-        //    return createHttpCachingClient(url, config, config.cache);
-        //} else {
-        //    return createHttpSecureClient(url, config);
-        //}
          return createCookieClient(url, config, cookieStore);
     }
 }
@@ -483,12 +478,6 @@ function createCircuitBreakerClient(string uri, ClientConfiguration configuratio
         };
         return new CircuitBreakerClient(uri, configuration, circuitBreakerInferredConfig, cbHttpClient, circuitHealth);
     } else {
-        //remove following once we can ignore
-        //if (configuration.cache.enabled) {
-        //    return createHttpCachingClient(uri, configuration, configuration.cache);
-        //} else {
-        //    return createHttpSecureClient(uri, configuration);
-        //}
         return createCookieClient(uri, configuration, cookieStore);
     }
 }
@@ -504,21 +493,6 @@ function createRetryClient(string url, ClientConfiguration configuration, Cookie
             maxWaitIntervalInMillis: retryConfig.maxWaitIntervalInMillis,
             statusCodes: statusCodes
         };
-        //if (configuration.cache.enabled) {
-        //    var httpCachingClient = createHttpCachingClient(url, configuration, configuration.cache);
-        //    if (httpCachingClient is HttpClient) {
-        //        return new RetryClient(url, configuration, retryInferredConfig, httpCachingClient);
-        //    } else {
-        //        return httpCachingClient;
-        //    }
-        //} else {
-        //    var httpSecureClient = createHttpSecureClient(url, configuration);
-        //    if (httpSecureClient is HttpClient) {
-        //        return new RetryClient(url, configuration, retryInferredConfig, httpSecureClient);
-        //    } else {
-        //        return httpSecureClient;
-        //    }
-        //}
         var httpCookieClient = createCookieClient(url, configuration, cookieStore);
         if (httpCookieClient is HttpClient) {
             return new RetryClient(url, configuration, retryInferredConfig, httpCookieClient);
@@ -526,12 +500,6 @@ function createRetryClient(string url, ClientConfiguration configuration, Cookie
             return httpCookieClient;
         }
     } else {
-        //remove following once we can ignore
-        //if (configuration.cache.enabled) {
-        //    return createHttpCachingClient(url, configuration, configuration.cache);
-        //} else {
-        //    return createHttpSecureClient(url, configuration);
-        //}
         return createCookieClient(url, configuration, cookieStore);
     }
 }
@@ -541,7 +509,6 @@ function createCookieClient(string url, ClientConfiguration configuration, Cooki
     if (cookieConfigVal is CookieConfig) {
         if (cookieConfigVal.enabled) {
             if (configuration.cache.enabled) {
-                //return new CookieClient(url, configuration, cookieConfigVal, createHttpCachingClient(url, configuration, configuration.cache));
                 var httpCachingClient = createHttpCachingClient(url, configuration, configuration.cache);
                 if (httpCachingClient is HttpClient) {
                     return new CookieClient(url, configuration, cookieConfigVal, httpCachingClient, cookieStore);
@@ -549,7 +516,6 @@ function createCookieClient(string url, ClientConfiguration configuration, Cooki
                     return httpCachingClient;
                 }
             } else {
-                // return new CookieClient(url, configuration, cookieConfigVal, createHttpSecureClient(url, configuration));
                 var httpSecureClient = createHttpSecureClient(url, configuration);
                 if (httpSecureClient is HttpClient) {
                     return new CookieClient(url, configuration, cookieConfigVal, httpSecureClient, cookieStore);

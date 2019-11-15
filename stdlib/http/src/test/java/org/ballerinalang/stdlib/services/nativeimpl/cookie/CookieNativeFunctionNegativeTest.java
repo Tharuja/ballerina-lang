@@ -17,17 +17,8 @@
  */
 package org.ballerinalang.stdlib.services.nativeimpl.cookie;
 
-import io.netty.handler.codec.http.DefaultHttpHeaders;
-import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.util.internal.StringUtil;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.http.HttpConstants;
-import org.ballerinalang.stdlib.utils.TestEntityUtils;
-import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -35,29 +26,18 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_JSON;
-import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_XML;
-import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
-import static org.ballerinalang.mime.util.MimeConstants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
-import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
-import static org.ballerinalang.mime.util.MimeConstants.RESPONSE_ENTITY_FIELD;
-import static org.ballerinalang.mime.util.MimeConstants.TEXT_PLAIN;
-//import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createEntityObject;
-//import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createResponseObject;
-
 /**
  * Test cases for ballerina/http inbound response negative native functions.
  */
+
 public class CookieNativeFunctionNegativeTest {
 
     private CompileResult result, resultNegative;
-
 
     @BeforeClass
     public void setup() {
         String basePath = "test-src/services/nativeimpl/cookie/";
         result = BCompileUtil.compile(basePath + "cookie-native-function-negative.bal");
-
     }
 
     @Test(description = "add a cookie with unmatched domain to the cookie store")
@@ -74,7 +54,25 @@ public class CookieNativeFunctionNegativeTest {
                 "Cookie objects are in the Return Values");;
     }
 
-    @Test(description = "get a secure only cookie to unsecure request url")
+    @Test(description = "add a similar cookie as in the store coming from a non-http request url, but existing old cookie is http only")
+    public void testAddSimilarCookie() {
+        BValue[] returnVals = BRunUtil.invoke(result, "testAddSimilarCookie");
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                "No cookie objects in the Return Values");
+        Assert.assertTrue(returnVals.length == 1);
+        BMap<String, BValue> bvalue = (BMap) returnVals[0];
+        Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
+        Assert.assertEquals(bvalue.get("value").stringValue(), "239d4dmnmsddd34");
+    }
+
+    @Test(description = "add a http only cookie coming from a non-http url")
+    public void testAddHttpOnlyCookie() {
+        BValue[] returnVals = BRunUtil.invoke(result, "testAddHttpOnlyCookie");
+        Assert.assertTrue(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                "Cookie objects are in the Return Values");;
+    }
+
+    @Test(description = "get a secure only cookie to unsecured request url")
     public void testGetSecureCookieFromCookieStore() {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetSecureCookieFromCookieStore");
         Assert.assertTrue(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -120,8 +118,10 @@ public class CookieNativeFunctionNegativeTest {
     public void testRemoveCookieFromCookieStore() {
         BValue[] returnVals = BRunUtil.invoke(result, "testRemoveCookieFromCookieStore");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
-        Assert.assertTrue(returnVals.length == 1, "No cookie objects in the Return Values");
+                "No cookie objects in the Return Values");
+        Assert.assertTrue(returnVals.length == 1);
+        BMap<String, BValue> bvalue = (BMap) returnVals[0];
+        Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
     }
 
 }

@@ -18,17 +18,17 @@ import ballerina/http;
 import ballerina/io;
 
 public function main() {
-    http:Client cookieclientEndpoint = new ("http://localhost:9253", {cookieConfig: {enabled: true } } );
+    http:Client cookieclientEndpoint = new ("http://localhost:9253", { cookieConfig: {enabled: true } } );
     http:Request req = new;
     //first request -send session cookies in the response.
     var response = cookieclientEndpoint->get("/cookie/cookieBackend", req);
     //second request with cookie header and send more cookies in the response.
     response = cookieclientEndpoint->get("/cookie/cookieBackend", req);
-    //third request with cookie header including all  relevant cookies.
+    //third request with cookie header including all  relevant session cookies.
     response = cookieclientEndpoint->get("/cookie/cookieBackend", req);
     if (response is http:Response) {
         var payload = response.getTextPayload();
-        if(payload is string) {
+        if (payload is string) {
             io:print(payload);
         }
     }

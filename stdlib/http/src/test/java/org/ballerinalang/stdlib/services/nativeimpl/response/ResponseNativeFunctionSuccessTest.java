@@ -57,11 +57,11 @@ import static org.ballerinalang.mime.util.MimeConstants.OCTET_STREAM;
 import static org.ballerinalang.mime.util.MimeConstants.REQUEST_ENTITY_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.RESPONSE_ENTITY_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.TEXT_PLAIN;
+import static org.ballerinalang.net.http.ValueCreatorUtils.createEntityObject;
+import static org.ballerinalang.net.http.ValueCreatorUtils.createResponseObject;
 import static org.ballerinalang.stdlib.utils.TestEntityUtils.enrichEntityWithDefaultMsg;
 import static org.ballerinalang.stdlib.utils.TestEntityUtils.enrichTestEntity;
 import static org.ballerinalang.stdlib.utils.TestEntityUtils.enrichTestEntityHeaders;
-import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createEntityObject;
-import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createResponseObject;
 
 /**
  * Test cases for ballerina/http inbound inResponse success native functions.
@@ -561,8 +561,8 @@ public class ResponseNativeFunctionSuccessTest {
                 (BMap<String, BValue>) ((BMap<String, BValue>) returnValue[0]).get(RESPONSE_ENTITY_FIELD);
         HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
         Assert.assertEquals(returnHeaders.get(headerName), headerValue);
-
     }
+
     @Test
     public void testRemoveCookiesFromRemoteStore() {
         ObjectValue outResponse = createResponseObject();
@@ -576,8 +576,8 @@ public class ResponseNativeFunctionSuccessTest {
                 (BMap<String, BValue>) ((BMap<String, BValue>) returnValue[0]).get(RESPONSE_ENTITY_FIELD);
         HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
         Assert.assertEquals(returnHeaders.get(headerName), headerValue);
-
     }
+
     @Test
     public void testGetCookies() {
         ObjectValue inResponse = createResponseObject();
@@ -588,11 +588,8 @@ public class ResponseNativeFunctionSuccessTest {
         ObjectValue entity = createEntityObject();
         HttpUtil.populateInboundResponse(inResponse, entity, inResponseMsg);
         BValue[] returnVals = BRunUtil.invoke(result, "testGetCookies", new Object[]{ inResponse });
-        Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
-        Assert.assertTrue(returnVals.length == 1, "No objects in the Return Values");
-
-
-        // BValueArray arr = (BValueArray) returnVals[0];
-        // Assert.assertEquals(arr.stringValue(), "[{name:\"SID002\", value:\"239d4dmnmsddd34\", domain:\"google.com\", path:\"/sample\", maxAge:3600, expires:\"Mon, 26 Jun 2017 05:46:22 GMT\", httpOnly:true, secure:true, creationTime:{time:1571743530480, zone:{id:\"Asia/Colombo\", offset:19800}}, lastAccessedTime:{time:1571743530480, zone:{id:\"Asia/Colombo\", offset:19800}}, hostOnly:false}]");
+        Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "No cookie objects in the Return Values");
+        Assert.assertTrue(returnVals.length == 1);
     }
 }
+

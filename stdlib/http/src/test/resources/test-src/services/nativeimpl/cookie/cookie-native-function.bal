@@ -1,10 +1,25 @@
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 import ballerina/http;
 
-///Tests for session cookies///
+//Tests for session cookies
 
-// checks domain and path
 function testAddCookieToCookieStore1() returns @tainted http:Cookie[] {
-    http:CookieStore cookieStore1 = new;
+    http:CookieStore cookieStore = new;
     http:Cookie cookie1 = new;
     cookie1.name = "SID002";
     cookie1.value = "239d4dmnmsddd34";
@@ -13,79 +28,72 @@ function testAddCookieToCookieStore1() returns @tainted http:Cookie[] {
     http:Client cookieclientEndpoint = new("http://google.com", { cookieConfig: { enabled: true } } );
     var cookieConfigVal = cookieclientEndpoint.config.cookieConfig;
     if (cookieConfigVal is http:CookieConfig) {
-        cookieStore1.addCookie(cookie1, cookieConfigVal, "http://google.com", "/sample" );
+        cookieStore.addCookie(cookie1, cookieConfigVal, "http://google.com", "/sample");
     }
     //get all the cookies
-    return cookieStore1.getAllCookies();
- }
+    return cookieStore.getAllCookies();
+}
 
-//checks domain
- function testAddCookieToCookieStore2() returns @tainted http:Cookie[] {
-     http:CookieStore cookieStore1 = new;
-     http:Cookie cookie1 = new;
-     cookie1.name = "SID002";
-     cookie1.value = "239d4dmnmsddd34";
-     cookie1.path = "/sample";
-     cookie1.domain = "google.com";
-     http:Client cookieclientEndpoint = new("http://mail.google.com", { cookieConfig: { enabled: true } } );
-     var cookieConfigVal = cookieclientEndpoint.config.cookieConfig;
-     if (cookieConfigVal is http:CookieConfig) {
-         cookieStore1.addCookie(cookie1, cookieConfigVal, "http://mail.google.com", "/sample" );
-     }
-     //get all the cookies
-     return cookieStore1.getAllCookies();
-  }
-//checks domain
-
- function testAddCookieToCookieStore3() returns @tainted http:Cookie[] {
-     http:CookieStore cookieStore1 = new;
-     http:Cookie cookie1 = new;
-     cookie1.name = "SID002";
-     cookie1.value = "239d4dmnmsddd34";
-     cookie1.path = "/sample";
-     http:Client cookieclientEndpoint = new("http://google.com", { cookieConfig: { enabled: true } } );
-     var cookieConfigVal = cookieclientEndpoint.config.cookieConfig;
-     if (cookieConfigVal is http:CookieConfig) {
-         cookieStore1.addCookie(cookie1, cookieConfigVal, "http://google.com", "/sample" );
-     }
-     //get all the cookies
-     return cookieStore1.getAllCookies();
-  }
-
-//checks path
- function testAddCookieToCookieStore4() returns @tainted http:Cookie[] {
-     http:CookieStore cookieStore1 = new;
-     http:Cookie cookie1 = new;
-     cookie1.name = "SID002";
-     cookie1.value = "239d4dmnmsddd34";
-     cookie1.domain = "google.com";
-     http:Client cookieclientEndpoint = new("http://mail.google.com", { cookieConfig: { enabled: true } } );
-     var cookieConfigVal = cookieclientEndpoint.config.cookieConfig;
-     if (cookieConfigVal is http:CookieConfig) {
-         cookieStore1.addCookie(cookie1, cookieConfigVal, "http://google.com", "/sample" );
-     }
-     //get all the cookies
-     return cookieStore1.getAllCookies();
-  }
-//checks path
-   function testAddCookieToCookieStore5() returns @tainted http:Cookie[] {
-       http:CookieStore cookieStore1 = new;
-       http:Cookie cookie1 = new;
-       cookie1.name = "SID002";
-       cookie1.value = "239d4dmnmsddd34";
-       cookie1.domain = "google.com";
-       cookie1.path = "/mail";
-       http:Client cookieclientEndpoint = new("http://mail.google.com", { cookieConfig: { enabled: true } } );
-       var cookieConfigVal = cookieclientEndpoint.config.cookieConfig;
-       if (cookieConfigVal is http:CookieConfig) {
-           cookieStore1.addCookie(cookie1, cookieConfigVal, "http://mail.google.com", "/mail/inbox" );
-       }
-       //get all the cookies
-       return cookieStore1.getAllCookies();
+function testAddCookieToCookieStore2() returns @tainted http:Cookie[] {
+    http:CookieStore cookieStore = new;
+    http:Cookie cookie1 = new;
+    cookie1.name = "SID002";
+    cookie1.value = "239d4dmnmsddd34";
+    cookie1.path = "/sample";
+    cookie1.domain = "google.com";
+    http:Client cookieclientEndpoint = new("http://mail.google.com", { cookieConfig: { enabled: true } } );
+    var cookieConfigVal = cookieclientEndpoint.config.cookieConfig;
+    if (cookieConfigVal is http:CookieConfig) {
+        cookieStore.addCookie(cookie1, cookieConfigVal, "http://mail.google.com", "/sample");
     }
+    return cookieStore.getAllCookies();
+}
+
+function testAddCookieToCookieStore3() returns @tainted http:Cookie[] {
+    http:CookieStore cookieStore = new;
+    http:Cookie cookie1 = new;
+    cookie1.name = "SID002";
+    cookie1.value = "239d4dmnmsddd34";
+    cookie1.path = "/sample";
+    http:Client cookieclientEndpoint = new("http://google.com", { cookieConfig: { enabled: true } } );
+    var cookieConfigVal = cookieclientEndpoint.config.cookieConfig;
+    if (cookieConfigVal is http:CookieConfig) {
+        cookieStore.addCookie(cookie1, cookieConfigVal, "http://google.com", "/sample");
+    }
+    return cookieStore.getAllCookies();
+}
+
+function testAddCookieToCookieStore4() returns @tainted http:Cookie[] {
+    http:CookieStore cookieStore = new;
+    http:Cookie cookie1 = new;
+    cookie1.name = "SID002";
+    cookie1.value = "239d4dmnmsddd34";
+    cookie1.domain = "google.com";
+    http:Client cookieclientEndpoint = new("http://mail.google.com", { cookieConfig: { enabled: true } } );
+    var cookieConfigVal = cookieclientEndpoint.config.cookieConfig;
+    if (cookieConfigVal is http:CookieConfig) {
+        cookieStore.addCookie(cookie1, cookieConfigVal, "http://google.com", "/sample");
+    }
+    return cookieStore.getAllCookies();
+}
+
+function testAddCookieToCookieStore5() returns @tainted http:Cookie[] {
+    http:CookieStore cookieStore = new;
+    http:Cookie cookie1 = new;
+    cookie1.name = "SID002";
+    cookie1.value = "239d4dmnmsddd34";
+    cookie1.domain = "google.com";
+    cookie1.path = "/mail";
+    http:Client cookieclientEndpoint = new("http://mail.google.com", { cookieConfig: { enabled: true } } );
+    var cookieConfigVal = cookieclientEndpoint.config.cookieConfig;
+    if (cookieConfigVal is http:CookieConfig) {
+       cookieStore.addCookie(cookie1, cookieConfigVal, "http://mail.google.com", "/mail/inbox");
+    }
+    return cookieStore.getAllCookies();
+}
 
 function testAddCookiesToCookieStore() returns @tainted http:Cookie[] {
-    http:CookieStore cookieStore1 = new;
+    http:CookieStore cookieStore = new;
     http:Cookie cookie1 = new;
     cookie1.name = "SID001";
     cookie1.value = "239d4dmnmsddd34";
@@ -100,16 +108,35 @@ function testAddCookiesToCookieStore() returns @tainted http:Cookie[] {
     http:Client cookieclientEndpoint = new("http://google.com", { cookieConfig: { enabled: true } } );
     var cookieConfigVal = cookieclientEndpoint.config.cookieConfig;
     if (cookieConfigVal is http:CookieConfig) {
-        cookieStore1.addCookies(cookiesToadd, cookieConfigVal, "http://google.com", "/sample" );
+        cookieStore.addCookies(cookiesToadd, cookieConfigVal, "http://google.com", "/sample");
     }
-    //get all the cookies
-    return cookieStore1.getAllCookies();
+    return cookieStore.getAllCookies();
+}
 
- }
+function testAddSimilarCookieToCookieStore() returns @tainted http:Cookie[] {
+    http:CookieStore cookieStore = new;
+    http:Cookie cookie1 = new;
+    cookie1.name = "SID002";
+    cookie1.value = "239d4dmnmsddd34";
+    cookie1.path = "/sample";
+    cookie1.domain = "google.com";
+    cookie1.httpOnly = true;
+    http:Cookie cookie2 = new;
+    cookie2.name = "SID002";
+    cookie2.value = "6789mnmsddd34";
+    cookie2.path = "/sample";
+    cookie2.domain = "google.com";
+    http:Client cookieclientEndpoint = new("http://google.com", { cookieConfig: { enabled: true } } );
+    var cookieConfigVal = cookieclientEndpoint.config.cookieConfig;
+    if (cookieConfigVal is http:CookieConfig) {
+        cookieStore.addCookie(cookie1, cookieConfigVal, "http://google.com", "/sample");
+        cookieStore.addCookie(cookie2, cookieConfigVal, "http://google.com", "/sample");
+    }
+    return cookieStore.getAllCookies();
+}
 
-//checks path and domain
 function testGetCookiesFromCookieStore1() returns @tainted http:Cookie[] {
-    http:CookieStore cookieStore1 = new;
+    http:CookieStore cookieStore = new;
     http:Cookie cookie1 = new;
     cookie1.name = "SID002";
     cookie1.value = "239d4dmnmsddd34";
@@ -119,15 +146,14 @@ function testGetCookiesFromCookieStore1() returns @tainted http:Cookie[] {
     var cookieConfigVal = cookieclientEndpoint.config.cookieConfig;
     //add cookie
     if (cookieConfigVal is http:CookieConfig) {
-        cookieStore1.addCookie(cookie1, cookieConfigVal, "http://google.com", "/sample" );
+        cookieStore.addCookie(cookie1, cookieConfigVal, "http://google.com", "/sample");
     }
     //get relevant cookie from cookie store
-     return cookieStore1.getCookies("http://google.com", "/sample" );
+     return cookieStore.getCookies("http://google.com", "/sample");
 }
 
-//checks domain
 function testGetCookiesFromCookieStore2() returns @tainted http:Cookie[] {
-    http:CookieStore cookieStore1 = new;
+    http:CookieStore cookieStore = new;
     http:Cookie cookie1 = new;
     cookie1.name = "SID002";
     cookie1.value = "239d4dmnmsddd34";
@@ -135,33 +161,28 @@ function testGetCookiesFromCookieStore2() returns @tainted http:Cookie[] {
     cookie1.domain = "google.com";
     http:Client cookieclientEndpoint = new("http://google.com", { cookieConfig: { enabled: true } } );
     var cookieConfigVal = cookieclientEndpoint.config.cookieConfig;
-    //add cookie
     if (cookieConfigVal is http:CookieConfig) {
-        cookieStore1.addCookie(cookie1, cookieConfigVal, "http://google.com", "/sample" );
+        cookieStore.addCookie(cookie1, cookieConfigVal, "http://google.com", "/sample");
     }
-    //get relevant cookie from cookie store
-     return cookieStore1.getCookies("http://mail.google.com", "/sample" );
+     return cookieStore.getCookies("http://mail.google.com", "/sample");
 }
 
-//checks domain
 function testGetCookiesFromCookieStore3() returns @tainted http:Cookie[] {
-    http:CookieStore cookieStore1 = new;
+    http:CookieStore cookieStore = new;
     http:Cookie cookie1 = new;
     cookie1.name = "SID002";
     cookie1.value = "239d4dmnmsddd34";
     cookie1.path = "/sample";
     http:Client cookieclientEndpoint = new("http://google.com", { cookieConfig: { enabled: true } } );
     var cookieConfigVal = cookieclientEndpoint.config.cookieConfig;
-    //add cookie
     if (cookieConfigVal is http:CookieConfig) {
-        cookieStore1.addCookie(cookie1, cookieConfigVal, "http://google.com", "/sample" );
+        cookieStore.addCookie(cookie1, cookieConfigVal, "http://google.com", "/sample");
     }
-    //get relevant cookie from cookie store
-     return cookieStore1.getCookies("http://google.com", "/sample" );
+     return cookieStore.getCookies("http://google.com", "/sample");
 }
-//check path
+
 function testGetCookiesFromCookieStore4() returns @tainted http:Cookie[] {
-    http:CookieStore cookieStore1 = new;
+    http:CookieStore cookieStore = new;
     http:Cookie cookie1 = new;
     cookie1.name = "SID002";
     cookie1.value = "239d4dmnmsddd34";
@@ -169,32 +190,28 @@ function testGetCookiesFromCookieStore4() returns @tainted http:Cookie[] {
     cookie1.domain = "google.com";
     http:Client cookieclientEndpoint = new("http://google.com", { cookieConfig: { enabled: true } } );
     var cookieConfigVal = cookieclientEndpoint.config.cookieConfig;
-    //add cookie
     if (cookieConfigVal is http:CookieConfig) {
-        cookieStore1.addCookie(cookie1, cookieConfigVal, "http://google.com", "/mail" );
+        cookieStore.addCookie(cookie1, cookieConfigVal, "http://google.com", "/mail");
     }
-    //get relevant cookie from cookie store
-     return cookieStore1.getCookies("http://google.com", "/mail/inbox" );
+     return cookieStore.getCookies("http://google.com", "/mail/inbox");
 }
-//check path
+
 function testGetCookiesFromCookieStore5() returns @tainted http:Cookie[] {
-    http:CookieStore cookieStore1 = new;
+    http:CookieStore cookieStore = new;
     http:Cookie cookie1 = new;
     cookie1.name = "SID002";
     cookie1.value = "239d4dmnmsddd34";
     cookie1.domain = "google.com";
     http:Client cookieclientEndpoint = new("http://google.com", { cookieConfig: { enabled: true } } );
     var cookieConfigVal = cookieclientEndpoint.config.cookieConfig;
-    //add cookie
     if (cookieConfigVal is http:CookieConfig) {
-        cookieStore1.addCookie(cookie1, cookieConfigVal, "http://google.com", "/sample" );
+        cookieStore.addCookie(cookie1, cookieConfigVal, "http://google.com", "/sample");
     }
-    //get relevant cookie from cookie store
-     return cookieStore1.getCookies("http://google.com", "/sample" );
+     return cookieStore.getCookies("http://google.com", "/sample");
 }
-//check secure
+
 function testGetSecureCookieFromCookieStore() returns @tainted http:Cookie[] {
-    http:CookieStore cookieStore1 = new;
+    http:CookieStore cookieStore = new;
     http:Cookie cookie1 = new;
     cookie1.name = "SID002";
     cookie1.value = "239d4dmnmsddd34";
@@ -203,16 +220,14 @@ function testGetSecureCookieFromCookieStore() returns @tainted http:Cookie[] {
     cookie1.secure = true;
     http:Client cookieclientEndpoint = new("http://google.com", { cookieConfig: { enabled: true } } );
     var cookieConfigVal = cookieclientEndpoint.config.cookieConfig;
-    //add cookie
     if (cookieConfigVal is http:CookieConfig) {
-        cookieStore1.addCookie(cookie1, cookieConfigVal, "http://google.com", "/sample" );
+        cookieStore.addCookie(cookie1, cookieConfigVal, "http://google.com", "/sample");
     }
-    //get relevant cookie from cookie store
-   return cookieStore1.getCookies("https://google.com", "/sample" );
+   return cookieStore.getCookies("https://google.com", "/sample");
 }
 
 function testRemoveCookieFromCookieStore() returns @tainted http:Cookie[] {
-    http:CookieStore cookieStore1 = new;
+    http:CookieStore cookieStore = new;
     http:Cookie cookie1 = new;
     cookie1.name = "SID002";
     cookie1.value = "239d4dmnmsddd34";
@@ -220,17 +235,15 @@ function testRemoveCookieFromCookieStore() returns @tainted http:Cookie[] {
     cookie1.domain = "google.com";
     http:Client cookieclientEndpoint = new("http://google.com", { cookieConfig: { enabled: true } } );
     var cookieConfigVal = cookieclientEndpoint.config.cookieConfig;
-    //add cookie
     if (cookieConfigVal is http:CookieConfig) {
-        cookieStore1.addCookie(cookie1, cookieConfigVal, "http://google.com", "/sample" );
+        cookieStore.addCookie(cookie1, cookieConfigVal, "http://google.com", "/sample");
     }
-    //remove this cookie
-    boolean isRemoved = cookieStore1.removeCookie("SID002", "google.com", "/sample");
-    return cookieStore1.getAllCookies();
+    boolean isRemoved = cookieStore.removeCookie("SID002", "google.com", "/sample");
+    return cookieStore.getAllCookies();
 }
 
 function testClearAllCookiesInCookieStore() returns @tainted http:Cookie[] {
-    http:CookieStore cookieStore1 = new;
+    http:CookieStore cookieStore = new;
     http:Cookie cookie1 = new;
     cookie1.name = "SID002";
     cookie1.value = "239d4dmnmsddd34";
@@ -245,10 +258,8 @@ function testClearAllCookiesInCookieStore() returns @tainted http:Cookie[] {
     http:Client cookieclientEndpoint = new("http://google.com", { cookieConfig: { enabled: true } } );
     var cookieConfigVal = cookieclientEndpoint.config.cookieConfig;
     if (cookieConfigVal is http:CookieConfig) {
-        cookieStore1.addCookies(cookiesToadd, cookieConfigVal, "http://google.com", "/sample" );
+        cookieStore.addCookies(cookiesToadd, cookieConfigVal, "http://google.com", "/sample");
     }
-    //clear all cookies
-    cookieStore1.clear();
-    return cookieStore1.getAllCookies();
-
+    cookieStore.clear();
+    return cookieStore.getAllCookies();
  }

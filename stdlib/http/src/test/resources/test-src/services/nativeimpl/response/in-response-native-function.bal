@@ -98,26 +98,24 @@ function testAddCookie(http:Response res) returns http:Response {
 
 function testRemoveCookiesFromRemoteStore(http:Response res)  returns http:Response {
      http:Cookie cookie = new;
-     cookie.name="SID3";
-     cookie.value="31d4d96e407aad42";
-     cookie.expires="2017-06-26 05:46:22";
-
-    res.removeCookiesFromRemoteStore(cookie);
-    return res;
+     cookie.name = "SID3";
+     cookie.value = "31d4d96e407aad42";
+     cookie.expires = "2017-06-26 05:46:22";
+     res.removeCookiesFromRemoteStore(cookie);
+     return res;
 
 }
 
-function testGetCookies(http:Response res) returns @tainted http:Cookie[]{
+function testGetCookies(http:Response res) returns @tainted http:Cookie[] {
      http:Cookie cookie1 = new;
      cookie1.name = "SID002";
      cookie1.value = "239d4dmnmsddd34";
      cookie1.path = "/sample";
      cookie1.domain = ".GOOGLE.com.";
      cookie1.maxAge = 3600 ;
-     cookie1.expires="2017-06-26 05:46:22";
+     cookie1.expires = "2017-06-26 05:46:22";
      cookie1.httpOnly = true;
      cookie1.secure = true;
-
      res.addCookie(cookie1);
      //Gets the added cookies from response.
      http:Cookie[] cookiesInResponse=res.getCookies();
@@ -305,7 +303,7 @@ service hello on mockEP {
         cookie1.path = "/sample";
         cookie1.domain = ".GOOGLE.com.";
         cookie1.maxAge = 3600 ;
-        cookie1.expires="2017-06-26 05:46:22";
+        cookie1.expires = "2017-06-26 05:46:22";
         cookie1.httpOnly = true;
         cookie1.secure = true;
         res.addCookie(cookie1);
@@ -315,6 +313,5 @@ service hello on mockEP {
         res.setJsonPayload({cookie:result});
         checkpanic caller->respond(res);
     }
-
 
 }

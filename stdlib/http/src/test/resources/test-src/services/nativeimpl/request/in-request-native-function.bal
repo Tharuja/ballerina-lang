@@ -111,6 +111,7 @@ function testAddCookies(http:Request req) returns http:Request {
     req.addCookies(cookiesToAdd);
     return req;
 }
+
 function testGetCookies(http:Request req) returns http:Cookie[] {
     http:Cookie cookie1 = new;
     cookie1.name = "SID1";
@@ -122,7 +123,6 @@ function testGetCookies(http:Request req) returns http:Cookie[] {
     http:Cookie[] cookiesInRequest = req.getCookies();
     return cookiesInRequest;
 }
-
 
 listener http:MockListener mockEP = new(9090);
 
@@ -391,8 +391,8 @@ service hello on mockEP {
     }
 
     @http:ResourceConfig {
-            path: "/addCookies"
-        }
+        path: "/addCookies"
+    }
     resource function addCookies(http:Caller caller, http:Request inReq) {
         http:Request req = new;
         http:Cookie cookie1 = new;
@@ -417,6 +417,7 @@ service hello on mockEP {
         res.setJsonPayload({ cookieHeader: result });
         checkpanic caller->respond(res);
     }
+
     @http:ResourceConfig {
         path: "/getCookies"
     }

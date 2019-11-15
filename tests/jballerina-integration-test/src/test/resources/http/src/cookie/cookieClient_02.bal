@@ -18,17 +18,19 @@ import ballerina/http;
 import ballerina/io;
 
 public function main() {
-    http:Client cookieclientEndpoint = new ("http://localhost:9253", {cookieConfig: {enabled: true}});
+    http:Client cookieclientEndpoint = new ("http://localhost:9253", { cookieConfig: {enabled: true}});
     http:Request req = new;
     //first request -send cookies in the response.
     var response = cookieclientEndpoint->get("/cookie/cookieBackend", req);
     //remove a session cookie
-    boolean isRemoved = cookieclientEndpoint.getCookieStore().removeCookie("SID001", "localhost:9253", "/cookie" );
+    http:CookieStore myCookieStore = new;
+    myCookieStore = cookieclientEndpoint.getCookieStore();
+    boolean isRemoved = myCookieStore.removeCookie("SID001", "localhost:9253", "/cookie" );
     //send a request again  after removed  one session  cookie
     response = cookieclientEndpoint->get("/cookie/cookieBackend", req);
     if (response is http:Response) {
         var payload = response.getTextPayload();
-        if(payload is string) {
+        if (payload is string) {
             io:print(payload);
         }
     }
