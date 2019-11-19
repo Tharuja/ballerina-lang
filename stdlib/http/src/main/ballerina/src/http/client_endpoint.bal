@@ -207,6 +207,7 @@ public type Client client object {
     public remote function rejectPromise(PushPromise promise) {
         return self.httpClient->rejectPromise(promise);
     }
+
     # Retrieves the cookie store of the client.
     #
     # + return - The cookie store related to the client
