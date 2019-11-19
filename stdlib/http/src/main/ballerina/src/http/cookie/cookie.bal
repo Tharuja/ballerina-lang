@@ -18,19 +18,19 @@ import ballerina/lang.'int as ints;
 import ballerina/stringutils;
 import ballerina/time;
 
-#Represents a Cookie
+# Represents a Cookie.
 # 
-# + name - name of the cookie.
-# + value - value of the cookie.
-# + path - URI path to which the cookie belongs.
-# + domain - host to which the cookie will be sent .
-# + maxAge - maximum lifetime of the cookie, represented as number of seconds until the cookie expires.
-# + expires - maximum lifetime of the cookie, represented as date and time at which the cookie expires.
-# + httpOnly - cookie is sent only to http requests.
-# + secure - cookie is sent only to secure channels.
-# + creationTime - creation time of the cookie.
-# + lastAccessedTime - last accessed time of the cookie.
-# + hostOnly - cookie is sent only to the requested host.
+# + name - Name of the cookie
+# + value - Value of the cookie
+# + path - URI path to which the cookie belongs
+# + domain - Host to which the cookie will be sent
+# + maxAge - Maximum lifetime of the cookie, represented as number of seconds until the cookie expires
+# + expires - Maximum lifetime of the cookie, represented as date and time at which the cookie expires
+# + httpOnly - Cookie is sent only to http requests
+# + secure - Cookie is sent only to secure channels
+# + creationTime - Creation time of the cookie
+# + lastAccessedTime - Last accessed time of the cookie
+# + hostOnly - Cookie is sent only to the requested host
 public type Cookie object {
 
     public string name = "";
@@ -45,7 +45,7 @@ public type Cookie object {
     public time:Time lastAccessedTime = time:currentTime();
     public boolean hostOnly = false;
 
-    //Returns false if the cookie will be discarded at the end of the "session"; true otherwise.
+    // Returns false if the cookie will be discarded at the end of the "session"; true otherwise.
     public function isPersistent() returns boolean {
         if (self.expires == "" && self.maxAge == 0) {
             return false;
@@ -54,7 +54,7 @@ public type Cookie object {
         }
     }
 
-    //Returns true if the attributes of the cookie are in the correct format; false otherwise.
+    // Returns true if the attributes of the cookie are in the correct format; false otherwise.
     public function isValid() returns boolean | error {
         error invalidCookieError;
         if (self.name == "" || self.value == "") {
@@ -85,7 +85,7 @@ public type Cookie object {
         return true;
     }
 
-    //Gets the Cookie object in its string representation to be used in ‘Set-Cookie’ header in the response .
+    // Gets the Cookie object in its string representation to be used in ‘Set-Cookie’ header in the response.
     function toStringValue() returns string {
         string setCookieHeaderValue = "";
         setCookieHeaderValue = appendNameValuePair(setCookieHeaderValue, self.name, self.value);
@@ -110,10 +110,9 @@ public type Cookie object {
         setCookieHeaderValue = setCookieHeaderValue.substring(0, setCookieHeaderValue.length() - 2);
         return setCookieHeaderValue;
     }
-
 };
 
-//Converts the given time into GMT format.
+// Converts the cookie's expires time into GMT format.
 function toGmtFormat(Cookie cookie) returns boolean {
     time:Time | error t1 = time:parse(cookie.expires, "yyyy-MM-dd HH:mm:ss");
     if (t1 is time:Time) {
@@ -137,18 +136,20 @@ function appendNameValuePair(string setCookieHeaderValue, string name, string va
     resultString = setCookieHeaderValue + name + EQUALS + value + SEMICOLON + SPACE;
     return resultString;
 }
+
 function appendOnlyName(string setCookieHeaderValue, string name) returns string {
     string resultString;
     resultString = setCookieHeaderValue + name + SEMICOLON + SPACE;
     return resultString;
 }
+
 function appendNameIntValuePair(string setCookieHeaderValue, string name, int value) returns string {
     string resultString;
     resultString = setCookieHeaderValue + name + EQUALS + value.toString() + SEMICOLON + SPACE;
     return resultString;
 }
 
-//Returns the cookie object from Set-Cookie header string value.
+// Returns the cookie object from "Set-Cookie" header string value.
 function parseSetCookieHeader(string cookieStringValue) returns Cookie {
     Cookie cookie = new;
     string cookieValue = cookieStringValue;
@@ -185,7 +186,7 @@ function parseSetCookieHeader(string cookieStringValue) returns Cookie {
     return cookie;
 }
 
-//Returns an array of cookie objects from Cookie header string value.
+// Returns an array of cookie objects from "Cookie" header string value.
 function parseCookieHeader(string cookieStringValue) returns Cookie[] {
     Cookie[] cookiesInRequest = [];
     string cookieValue = cookieStringValue;
@@ -202,7 +203,7 @@ function parseCookieHeader(string cookieStringValue) returns Cookie[] {
     return cookiesInRequest;
 }
 
-//Sort cookies in order to make Cookie header in the request.
+// Sorts an array of cookies in order to make "Cookie" header in the request.
 function sortCookies(Cookie[] cookiesToAdd) {
     int i = 0;
     int j = 0;
@@ -232,10 +233,3 @@ function sortCookies(Cookie[] cookiesToAdd) {
         i = i + 1;
     }
 }
-
-
-
-
-
-
-

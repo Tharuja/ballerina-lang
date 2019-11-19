@@ -16,8 +16,7 @@
 
 import ballerina/http;
 
-//Tests for session cookies
-
+// Tests for session cookies.
 function testAddCookieWithUnmatchedDomain() returns @tainted http:Cookie[] {
     http:CookieStore cookieStore = new;
     http:Cookie cookie1 = new;
@@ -30,7 +29,7 @@ function testAddCookieWithUnmatchedDomain() returns @tainted http:Cookie[] {
     if (cookieConfigVal is http:CookieConfig) {
         cookieStore.addCookie(cookie1, cookieConfigVal, "http://bar.example.com", "/sample");
     }
-    //get all the cookies
+    // Gets all the cookies.
     return cookieStore.getAllCookies();
 }
 

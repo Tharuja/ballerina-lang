@@ -27,7 +27,7 @@ service cookie on new http:Listener(9253) {
         path: "/cookieBackend"
    }
     resource function addSessionCookies(http:Caller caller, http:Request req) {
-        //Create cookies
+        // Creates cookies.
         http:Cookie cookie1 = new;
         cookie1.name = "SID001";
         cookie1.value = "239d4dmnmsddd34";
@@ -53,7 +53,7 @@ service cookie on new http:Listener(9253) {
         cookie3.secure = false;
 
         http:Response res = new;
-        //add cookies if there are no cookies in the inbound request.
+        // Adds cookies if there are no cookies in the inbound request.
         http:Cookie[] rqstCookies=req.getCookies();
         if (rqstCookies.length() == 0) {
             res.addCookie(cookie1);
@@ -80,7 +80,7 @@ service cookie on new http:Listener(9253) {
           path: "/cookieBackend_2"
     }
     resource function addSimilarSessionCookie(http:Caller caller, http:Request req) {
-        //Create cookies
+        // Creates cookies.
         http:Cookie cookie1 = new;
         cookie1.name = "SID002";
         cookie1.value = "239d4dmnmsddd34";
@@ -96,7 +96,7 @@ service cookie on new http:Listener(9253) {
         cookie2.httpOnly = false;
 
         http:Response res = new;
-        //add cookies if there are no cookies in the inbound request, not adding otherwise.
+        // Adds cookies if there are no cookies in the inbound request, not adding otherwise.
         http:Cookie[] rqstCookies=req.getCookies();
         if (rqstCookies.length() == 0) {
             res.addCookie(cookie1);
@@ -117,7 +117,7 @@ service cookie on new http:Listener(9253) {
           path: "/cookieBackend_3"
     }
     resource function removeSessionCookie(http:Caller caller, http:Request req) {
-        //Create cookies
+        // Creates cookies.
         http:Cookie cookie1 = new;
         cookie1.name = "SID001";
         cookie1.value = "239d4dmnmsddd34";
@@ -134,7 +134,7 @@ service cookie on new http:Listener(9253) {
         cookie2.secure = false;
 
         http:Response res = new;
-        //add cookies if there are no cookies in the inbound request.
+        // Adds cookies if there are no cookies in the inbound request.
         http:Cookie[] rqstCookies=req.getCookies();
         if (rqstCookies.length() == 0) {
             res.addCookie(cookie1);
@@ -155,12 +155,4 @@ service cookie on new http:Listener(9253) {
             var result = caller->respond(res);
         }
     }
-
 }
-
-
-
-
-
-
-

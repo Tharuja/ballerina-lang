@@ -41,7 +41,6 @@ public class HTTPCookiesTestCase extends HttpBaseTest {
         String output = bMainInstance.runMainAndReadStdOut("run", new String[]{
                 "cookieClient_01.bal" }, balFilepath);
         Assert.assertTrue(output.contains("SID003=895gd4dmnmsddd34; SID002=178gd4dmnmsddd34; SID001=239d4dmnmsddd34"));
-
     }
 
     @Test(description = "Test remove session cookie by client")
@@ -52,7 +51,6 @@ public class HTTPCookiesTestCase extends HttpBaseTest {
         String output = bMainInstance.runMainAndReadStdOut("run", new String[]{
                 "cookieClient_02.bal" }, balFilepath);
         Assert.assertTrue(output.contains("SID003=895gd4dmnmsddd34"));
-
     }
 
     @Test(description = "Test sending similar session cookies in the response by server,old cookie is replaced by new cookie in the cookie store")
@@ -63,7 +61,6 @@ public class HTTPCookiesTestCase extends HttpBaseTest {
         String output = bMainInstance.runMainAndReadStdOut("run", new String[]{
                 "cookieClient_03.bal" }, balFilepath);
         Assert.assertTrue(output.contains("SID002=178gd4dmnmsddd34"));
-
     }
 
     @Test(description = "Test remove session cookie by server")
@@ -74,7 +71,5 @@ public class HTTPCookiesTestCase extends HttpBaseTest {
         String output = bMainInstance.runMainAndReadStdOut("run", new String[]{
                 "cookieClient_04.bal" }, balFilepath);
         Assert.assertTrue(output.contains("SID002=178gd4dmnmsddd34"));
-
     }
-
 }

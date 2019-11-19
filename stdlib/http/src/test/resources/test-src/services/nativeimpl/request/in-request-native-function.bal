@@ -434,5 +434,4 @@ service hello on mockEP {
         res.setTextPayload(<@untainted string>  cookiesInRequest[0].name );
         checkpanic caller->respond(res);
     }
-
 }

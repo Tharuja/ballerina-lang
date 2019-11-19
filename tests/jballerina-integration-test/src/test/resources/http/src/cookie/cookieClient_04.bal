@@ -20,11 +20,11 @@ import ballerina/io;
 public function main() {
     http:Client cookieclientEndpoint = new ("http://localhost:9253", { cookieConfig: {enabled: true, enablePersistent:true}});
     http:Request req = new;
-    //first request -send session cookies in the response.
+    // First request -send session cookies in the response.
     var response = cookieclientEndpoint->get("/cookie/cookieBackend_3", req);
-    //server sends expired cookie in the response in order to remove existing cookie in cookie store.
+    // Server sends expired cookie in the response in order to remove existing cookie in cookie store.
     response = cookieclientEndpoint->get("/cookie/cookieBackend_3", req);
-    //third request after removing the cookie.
+    // Third request after removing the cookie.
     response = cookieclientEndpoint->get("/cookie/cookieBackend_3", req);
     if (response is http:Response) {
         var payload = response.getTextPayload();

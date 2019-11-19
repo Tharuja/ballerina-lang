@@ -16,8 +16,7 @@
 
 import ballerina/http;
 
-//Tests for session cookies
-
+// Tests for session cookies.
 function testAddCookieToCookieStore1() returns @tainted http:Cookie[] {
     http:CookieStore cookieStore = new;
     http:Cookie cookie1 = new;
@@ -30,7 +29,7 @@ function testAddCookieToCookieStore1() returns @tainted http:Cookie[] {
     if (cookieConfigVal is http:CookieConfig) {
         cookieStore.addCookie(cookie1, cookieConfigVal, "http://google.com", "/sample");
     }
-    //get all the cookies
+    // Gets all the cookies.
     return cookieStore.getAllCookies();
 }
 
@@ -144,11 +143,11 @@ function testGetCookiesFromCookieStore1() returns @tainted http:Cookie[] {
     cookie1.domain = "google.com";
     http:Client cookieclientEndpoint = new("http://google.com", { cookieConfig: { enabled: true } } );
     var cookieConfigVal = cookieclientEndpoint.config.cookieConfig;
-    //add cookie
+    // Adds cookie.
     if (cookieConfigVal is http:CookieConfig) {
         cookieStore.addCookie(cookie1, cookieConfigVal, "http://google.com", "/sample");
     }
-    //get relevant cookie from cookie store
+    // Gets relevant cookie from cookie store.
      return cookieStore.getCookies("http://google.com", "/sample");
 }
 
@@ -262,4 +261,4 @@ function testClearAllCookiesInCookieStore() returns @tainted http:Cookie[] {
     }
     cookieStore.clear();
     return cookieStore.getAllCookies();
- }
+}

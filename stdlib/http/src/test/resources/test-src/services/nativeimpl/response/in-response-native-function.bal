@@ -103,7 +103,6 @@ function testRemoveCookiesFromRemoteStore(http:Response res)  returns http:Respo
      cookie.expires = "2017-06-26 05:46:22";
      res.removeCookiesFromRemoteStore(cookie);
      return res;
-
 }
 
 function testGetCookies(http:Response res) returns @tainted http:Cookie[] {
@@ -117,7 +116,7 @@ function testGetCookies(http:Response res) returns @tainted http:Cookie[] {
      cookie1.httpOnly = true;
      cookie1.secure = true;
      res.addCookie(cookie1);
-     //Gets the added cookies from response.
+     // Gets the added cookies from response.
      http:Cookie[] cookiesInResponse=res.getCookies();
      return cookiesInResponse;
 }
@@ -313,5 +312,4 @@ service hello on mockEP {
         res.setJsonPayload({cookie:result});
         checkpanic caller->respond(res);
     }
-
 }

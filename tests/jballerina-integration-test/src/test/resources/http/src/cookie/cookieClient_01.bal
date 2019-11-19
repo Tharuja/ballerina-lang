@@ -20,11 +20,11 @@ import ballerina/io;
 public function main() {
     http:Client cookieclientEndpoint = new ("http://localhost:9253", { cookieConfig: {enabled: true } } );
     http:Request req = new;
-    //first request -send session cookies in the response.
+    // First request -send session cookies in the response.
     var response = cookieclientEndpoint->get("/cookie/cookieBackend", req);
-    //second request with cookie header and send more cookies in the response.
+    // Second request with cookie header and send more cookies in the response.
     response = cookieclientEndpoint->get("/cookie/cookieBackend", req);
-    //third request with cookie header including all  relevant session cookies.
+    // Third request with cookie header including all relevant session cookies.
     response = cookieclientEndpoint->get("/cookie/cookieBackend", req);
     if (response is http:Response) {
         var payload = response.getTextPayload();

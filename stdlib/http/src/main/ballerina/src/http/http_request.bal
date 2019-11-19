@@ -518,9 +518,9 @@ public type Request object {
     # + return - a boolean indicating entity body availability
     function checkEntityBodyAvailability() returns boolean = external;
 
-    #Add cookies to request.
+    # Adds cookies to the request.
     #
-    # + cookiesToAdd - represent the cookies to be added.
+    # + cookiesToAdd - Represents the cookies to be added
     public function addCookies(Cookie[] cookiesToAdd) {
         string cookieheader = "";
         sortCookies(cookiesToAdd);
@@ -538,9 +538,9 @@ public type Request object {
         }
     }
 
-    #Get cookies from the request.
+    # Gets cookies from the request.
     #
-    # + return - An array of cookie objects which are included in the request.
+    # + return - An array of cookie objects which are included in the request
     public function getCookies() returns Cookie[] {
         string cookiesStringValue = "";
         Cookie[] cookiesInRequest = [];

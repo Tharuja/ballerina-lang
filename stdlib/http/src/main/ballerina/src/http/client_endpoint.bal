@@ -357,15 +357,15 @@ public type OutboundAuthConfig record {|
     OutboundAuthHandler authHandler;
 |};
 
-#Client configuration for cookies
+# Client configuration for cookies.
 #
-# + enabled - User agents provide users with a mechanism for disabling or enabling cookies.
-# + maxPerCookieSize - At least 4096 bytes per cookie (as measured by the sum of the length of the cookie’s name, value, and  attributes).
-# + maxCookiesPerDomain - At least 50 cookies per domain.
-# + maxCookieCount - At least 3000 cookies total.
-# + blockThirdPartyCookies - User can block cookies from third party responses and refuse to send cookies for third party requests  if needed.
+# + enabled - User agents provide users with a mechanism for disabling or enabling cookies
+# + maxPerCookieSize - At least 4096 bytes per cookie (as measured by the sum of the length of the cookie’s name, value, and  attributes)
+# + maxCookiesPerDomain - At least 50 cookies per domain
+# + maxCookieCount - At least 3000 cookies total
+# + blockThirdPartyCookies - User can block cookies from third party responses and refuse to send cookies for third party requests  if needed
 # + enablePersistent - Users are provided with a mechanism for enabling or disabling persistent cookies which are stored until a specific expiration date.
-#                     If false, only session cookies are used.
+#                     If false, only session cookies are used
 public type CookieConfig record {|
      boolean enabled = false;
      int maxPerCookieSize = 4096;

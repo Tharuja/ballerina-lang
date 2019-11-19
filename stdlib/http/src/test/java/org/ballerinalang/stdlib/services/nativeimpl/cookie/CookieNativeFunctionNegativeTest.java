@@ -29,7 +29,6 @@ import org.testng.annotations.Test;
 /**
  * Test cases for ballerina/http inbound response negative native functions.
  */
-
 public class CookieNativeFunctionNegativeTest {
 
     private CompileResult result, resultNegative;
@@ -44,21 +43,21 @@ public class CookieNativeFunctionNegativeTest {
     public void testAddCookieWithUnmatchedDomain() {
         BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieWithUnmatchedDomain");
         Assert.assertTrue(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Cookie objects are in the Return Values");;
+                          "Cookie objects are in the Return Values");;
     }
 
     @Test(description = "add a cookie with unmatched path to the cookie store")
     public void testAddCookieWithUnmatchedPath() {
         BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieWithUnmatchedPath");
         Assert.assertTrue(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Cookie objects are in the Return Values");;
+                          "Cookie objects are in the Return Values");;
     }
 
     @Test(description = "add a similar cookie as in the store coming from a non-http request url, but existing old cookie is http only")
     public void testAddSimilarCookie() {
         BValue[] returnVals = BRunUtil.invoke(result, "testAddSimilarCookie");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "No cookie objects in the Return Values");
+                           "No cookie objects in the Return Values");
         Assert.assertTrue(returnVals.length == 1);
         BMap<String, BValue> bvalue = (BMap) returnVals[0];
         Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
@@ -69,59 +68,58 @@ public class CookieNativeFunctionNegativeTest {
     public void testAddHttpOnlyCookie() {
         BValue[] returnVals = BRunUtil.invoke(result, "testAddHttpOnlyCookie");
         Assert.assertTrue(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Cookie objects are in the Return Values");;
+                          "Cookie objects are in the Return Values");;
     }
 
     @Test(description = "get a secure only cookie to unsecured request url")
     public void testGetSecureCookieFromCookieStore() {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetSecureCookieFromCookieStore");
         Assert.assertTrue(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Cookie objects are in the Return Values");;
+                          "Cookie objects are in the Return Values");;
     }
 
     @Test(description = "get a http only cookie to non-http request url")
     public void testGetHttpOnlyCookieFromCookieStore() {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetHttpOnlyCookieFromCookieStore");
         Assert.assertTrue(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Cookie objects are in the Return Values");;
+                          "Cookie objects are in the Return Values");;
     }
 
     @Test(description = "get a host only cookie for a subdomain from cookie store ")
     public void testGetCookieToUnmatchedDomain1() {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetCookieToUnmatchedDomain1");
         Assert.assertTrue(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Cookie objects are in the Return Values");;
+                          "Cookie objects are in the Return Values");;
     }
 
     @Test(description = "get a cookie to unmatched request domain")
     public void testGetCookieToUnmatchedDomain2() {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetCookieToUnmatchedDomain2");
         Assert.assertTrue(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Cookie objects are in the Return Values");;
+                          "Cookie objects are in the Return Values");;
     }
 
     @Test(description = "get a cookie to unmatched request path")
     public void testGetCookieToUnmatchedPath1() {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetCookieToUnmatchedPath1");
         Assert.assertTrue(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Cookie objects are in the Return Values");;
+                          "Cookie objects are in the Return Values");;
     }
 
     @Test(description = "get a cookie with unspecified path to unmatched request path")
     public void testGetCookieToUnmatchedPath2() {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetCookieToUnmatchedPath2");
         Assert.assertTrue(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Cookie objects are in the Return Values");;
+                          "Cookie objects are in the Return Values");;
     }
 
     @Test(description = "remove a specific cookie which is not in the cookie store")
     public void testRemoveCookieFromCookieStore() {
         BValue[] returnVals = BRunUtil.invoke(result, "testRemoveCookieFromCookieStore");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "No cookie objects in the Return Values");
+                           "No cookie objects in the Return Values");
         Assert.assertTrue(returnVals.length == 1);
         BMap<String, BValue> bvalue = (BMap) returnVals[0];
         Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
     }
-
 }

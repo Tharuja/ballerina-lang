@@ -32,7 +32,6 @@ import java.nio.file.Paths;
 /**
  * Test cases for ballerina/http cookie success native functions.
  */
-
 public class CookieNativeFunctionSuccessTest {
 
     private CompileResult result;

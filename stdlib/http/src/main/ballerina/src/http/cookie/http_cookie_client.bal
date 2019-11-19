@@ -29,7 +29,7 @@ public type CookieClient object {
     public HttpClient httpClient;
     public CookieStore cookieStore;
 
-    # Create a cookie client with the given configurations.
+    # Creates a cookie client with the given configurations.
     #
     # + url - Target service url
     # + config - HTTP ClientEndpointConfig to be used for HTTP client invocation
@@ -221,20 +221,18 @@ public type CookieClient object {
     public function rejectPromise(PushPromise promise) {
         self.httpClient->rejectPromise(promise);
     }
-
-
 };
 
-//Get the relevant cookies from the cookieStore and add them to the request.
+// Gets the relevant cookies from the cookieStore and adds them to the request.
 function addStoredCookiesToRequest(string url, string path, CookieStore cookieStore, Request request) {
-     Cookie[] cookiesToSend = cookieStore.getCookies(url, path);
-        if (cookiesToSend.length() != 0) {
-            //has requested before and has cookies
-            request.addCookies(cookiesToSend);
-        }
+    Cookie[] cookiesToSend = cookieStore.getCookies(url, path);
+    if (cookiesToSend.length() != 0) {
+        // Has requested to this url before and has cookies.
+        request.addCookies(cookiesToSend);
+    }
 }
 
-//Get the cookies from the inbound response , add them to the cookies store and return the response.
+// Gets the cookies from the inbound response ,adds them to the cookies store and returns the response.
 function addCookiesInResponseToStore(Response|ClientError inboundResponse, @tainted CookieStore cookieStore, CookieConfig cookieConfig, string url, string path) returns Response|ClientError {
     if (inboundResponse is Response) {
         Cookie[] cookiesInResponse = inboundResponse.getCookies();
