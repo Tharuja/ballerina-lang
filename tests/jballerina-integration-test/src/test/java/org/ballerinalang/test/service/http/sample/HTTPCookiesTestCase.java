@@ -30,6 +30,9 @@ import org.ballerinalang.test.context.BallerinaTestException;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * Test cases for HTTP cookies.
+ */
 @Test(groups = "http-test")
 public class HTTPCookiesTestCase extends HttpBaseTest {
 
