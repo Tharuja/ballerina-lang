@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -121,10 +121,10 @@ public type CookieStore object {
      # + path - Path of the cookie to be removed
      # + return - Return true if the relevant cookie is removed, false otherwise
      public function removeCookie(string name, string domain, string path) returns boolean {
-         // Removes if it is a session cookie.
+         // Removes the session cookie in the cookie store which is matched with  given name, domain and path.
          int k = 0;
          while (k < self.allSessionCookies.length()) {
-             if (name == self.allSessionCookies[k].name && domain == self.allSessionCookies[k].domain  && path ==  self.allSessionCookies[k].path) {
+             if (name == self.allSessionCookies[k].name && domain == self.allSessionCookies[k].domain && path ==  self.allSessionCookies[k].path) {
                  int j = k;
                  while (j < self.allSessionCookies.length()-1) {
                      self.allSessionCookies[j] = self.allSessionCookies[j + 1];
@@ -154,22 +154,27 @@ public type CookieStore object {
 // Extracts domain name from the request url.
 function getDomain(string url) returns string {
     string domain = url;
-    if (url.startsWith("https://www.")) {
-        domain = url.substring(12, url.length());
+    string urlType1 = "https://www.";
+    string urlType2 = "http://www.";
+    string urlType3 = "http://";
+    string urlType4 = "https://";
+    if (url.startsWith(urlType1)) {
+        domain = url.substring(urlType1.length(), url.length());
     }
-    else if (url.startsWith("http://www.")) {
-        domain = url.substring(11, url.length());
+    else if (url.startsWith(urlType2)) {
+        domain = url.substring(urlType2.length(), url.length());
     }
-    else if (url.startsWith("http://")) {
-        domain = url.substring(7, url.length());
+    else if (url.startsWith(urlType3)) {
+        domain = url.substring(urlType3.length(), url.length());
     }
-    else if (url.startsWith("https://")) {
-        domain = url.substring(8, url.length());
+    else if (url.startsWith(urlType4)) {
+        domain = url.substring(urlType4.length(), url.length());
     }
     return domain;
 }
 
 // Returns the identical cookie for a given cookie if exists.
+// Identical cookie is the cookie which has the same name,domain & path as in the given cookie.
 function getIdenticalCookie(Cookie cookieToCompare, Cookie[] allSessionCookies) returns Cookie? {
     // Searches session cookies.
     int k = 0 ;
@@ -190,15 +195,14 @@ function isDomainMatched(Cookie cookie, string domain, CookieConfig cookieConfig
         cookie.hostOnly = true;
         return true;
     } else {
+        cookie.hostOnly = false;
         if (cookieConfig.blockThirdPartyCookies) {
-            cookie.hostOnly = false;
             if (cookie.domain == domain || domain.endsWith("." + cookie.domain)) {
                 return true;
             } else {
                 return false;
             }
         } else {
-            cookie.hostOnly = false;
             return true;
         }
     }

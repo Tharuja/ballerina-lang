@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/log;
 
 @http:ServiceConfig {
     basePath: "/cookie"
@@ -53,21 +52,15 @@ service cookie on new http:Listener(9253) {
         cookie3.secure = false;
 
         http:Response res = new;
+        http:Cookie[] reqstCookies=req.getCookies();
         // Adds cookies if there are no cookies in the inbound request.
-        http:Cookie[] rqstCookies=req.getCookies();
-        if (rqstCookies.length() == 0) {
+        if (reqstCookies.length() == 0) {
             res.addCookie(cookie1);
             res.addCookie(cookie3);
             var result = caller->respond(res);
-            if (result is error) {
-                log:printError("Failed to respond to the caller", err = result);
-            }
-        } else if (rqstCookies.length() == 2) {
+        } else if (reqstCookies.length() == 2) {
             res.addCookie(cookie2);
             var result = caller->respond(res);
-            if (result is error) {
-                log:printError("Failed to respond to the caller", err = result);
-            }
         } else {
             string cookieHeader = req.getHeader("Cookie");
             res.setPayload(<@untainted> cookieHeader);
@@ -96,15 +89,12 @@ service cookie on new http:Listener(9253) {
         cookie2.httpOnly = false;
 
         http:Response res = new;
+        http:Cookie[] reqstCookies=req.getCookies();
         // Adds cookies if there are no cookies in the inbound request, not adding otherwise.
-        http:Cookie[] rqstCookies=req.getCookies();
-        if (rqstCookies.length() == 0) {
+        if (reqstCookies.length() == 0) {
             res.addCookie(cookie1);
             res.addCookie(cookie2);
             var result = caller->respond(res);
-                if (result is error) {
-                    log:printError("Failed to respond to the caller", err = result);
-                }
         } else {
             string cookieHeader = req.getHeader("Cookie");
             res.setPayload(<@untainted> cookieHeader);
@@ -134,21 +124,15 @@ service cookie on new http:Listener(9253) {
         cookie2.secure = false;
 
         http:Response res = new;
+        http:Cookie[] reqstCookies=req.getCookies();
         // Adds cookies if there are no cookies in the inbound request.
-        http:Cookie[] rqstCookies=req.getCookies();
-        if (rqstCookies.length() == 0) {
+        if (reqstCookies.length() == 0) {
             res.addCookie(cookie1);
             res.addCookie(cookie2);
             var result = caller->respond(res);
-                if (result is error) {
-                    log:printError("Failed to respond to the caller", err = result);
-                }
-        } else if (rqstCookies.length() == 2) {
+        } else if (reqstCookies.length() == 2) {
             res.removeCookiesFromRemoteStore(cookie1);
             var result = caller->respond(res);
-            if (result is error) {
-                log:printError("Failed to respond to the caller", err = result);
-            }
         } else {
             string cookieHeader = req.getHeader("Cookie");
             res.setPayload(<@untainted> cookieHeader);

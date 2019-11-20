@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -204,27 +204,27 @@ function parseCookieHeader(string cookieStringValue) returns Cookie[] {
 }
 
 // Sorts an array of cookies in order to make "Cookie" header in the request.
-function sortCookies(Cookie[] cookiesToAdd) {
+function sortCookies(Cookie[] cookies) {
     int i = 0;
     int j = 0;
     Cookie temp = new ();
-    while (i < cookiesToAdd.length()) {
+    while (i < cookies.length()) {
         j = i + 1;
-        while (j < cookiesToAdd.length()) {
-            if (cookiesToAdd[i].path.length() < cookiesToAdd[j].path.length()) {
-                temp = cookiesToAdd[i];
-                cookiesToAdd[i] = cookiesToAdd[j];
-                cookiesToAdd[j] = temp;
+        while (j < cookies.length()) {
+            if (cookies[i].path.length() < cookies[j].path.length()) {
+                temp = cookies[i];
+                cookies[i] = cookies[j];
+                cookies[j] = temp;
             }
-            if (cookiesToAdd[i].path.length() == cookiesToAdd[j].path.length()) {
+            if (cookies[i].path.length() == cookies[j].path.length()) {
                 //sort according to time
-                time:Time | error t1 = cookiesToAdd[i].creationTime;
-                time:Time | error t2 = cookiesToAdd[j].creationTime;
+                time:Time | error t1 = cookies[i].creationTime;
+                time:Time | error t2 = cookies[j].creationTime;
                 if (t1 is time:Time && t2 is time:Time) {
                     if (t1.time > t2.time) {
-                        temp = cookiesToAdd[i];
-                        cookiesToAdd[i] = cookiesToAdd[j];
-                        cookiesToAdd[j] = temp;
+                        temp = cookies[i];
+                        cookies[i] = cookies[j];
+                        cookies[j] = temp;
                     }
                 }
             }
