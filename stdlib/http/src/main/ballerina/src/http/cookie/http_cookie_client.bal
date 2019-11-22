@@ -227,7 +227,7 @@ public type CookieClient object {
 function addStoredCookiesToRequest(string url, string path, CookieStore cookieStore, Request request) {
     Cookie[] cookiesToSend = cookieStore.getCookies(url, path);
     if (cookiesToSend.length() != 0) {
-        // Has requested to this url before and has cookies.
+        // Has requested to this url before and has stored cookies.
         request.addCookies(cookiesToSend);
     }
 }

@@ -36,26 +36,28 @@ public type CookieStore object {
         if (index is int) {
             path = requestPath.substring(0,index);
         }
-        Cookie? identicalCookie = getIdenticalCookie(cookie, self.allSessionCookies);
-        if (!isDomainMatched(cookie, domain, cookieConfig)) {
-            return;
-        }
-        if (!isPathMatched(cookie, path, cookieConfig)) {
-            return;
-        }
-        if (!isExpiresAttributeValid(cookie)) {
-            return;
-        }
-        if (!((url.startsWith("http") && cookie.httpOnly) || cookie.httpOnly == false)) {
-            return;
-        }
-        if (cookie.isPersistent()) {
-            if (!cookieConfig.enablePersistent) {
+        lock {
+            Cookie? identicalCookie = getIdenticalCookie(cookie, self.allSessionCookies);
+            if (!isDomainMatched(cookie, domain, cookieConfig)) {
                 return;
             }
-            addPersistentCookie(identicalCookie, cookie, url, self);
-        } else {
-            addSessionCookie(identicalCookie, cookie, url, self);
+            if (!isPathMatched(cookie, path, cookieConfig)) {
+                return;
+            }
+            if (!isExpiresAttributeValid(cookie)) {
+                return;
+            }
+            if (!((url.startsWith("http") && cookie.httpOnly) || cookie.httpOnly == false)) {
+                return;
+            }
+            if (cookie.isPersistent()) {
+                if (!cookieConfig.enablePersistent) {
+                    return;
+                }
+                addPersistentCookie(identicalCookie, cookie, url, self);
+            } else {
+                addSessionCookie(identicalCookie, cookie, url, self);
+            }
         }
     }
 
@@ -84,34 +86,38 @@ public type CookieStore object {
         if (index is int) {
             path = requestPath.substring(0,index);
         }
-        // Gets session cookies.
-        foreach var cookie in self.allSessionCookies {
-            if (!((url.startsWith("https") && cookie.secure) || cookie.secure == false)) {
-                return cookiesToReturn;
-            }
-            if (!((url.startsWith("http") && cookie.httpOnly) || cookie.httpOnly == false)) {
-                return cookiesToReturn;
-            }
-            if (cookie.hostOnly == true) {
-                if (cookie.domain == domain && checkPath(path, cookie)) {
-                    cookiesToReturn[cookiesToReturn.length()] = cookie;
+        lock {
+            // Gets session cookies.
+            foreach var cookie in self.allSessionCookies {
+                if (!((url.startsWith("https") && cookie.secure) || cookie.secure == false)) {
+                    return cookiesToReturn;
                 }
-            } else {
-                if ((domain.endsWith("." + cookie.domain) || cookie.domain == domain ) && checkPath(path, cookie)) {
-                    cookiesToReturn[cookiesToReturn.length()] = cookie;
+                if (!((url.startsWith("http") && cookie.httpOnly) || cookie.httpOnly == false)) {
+                    return cookiesToReturn;
+                }
+                if (cookie.hostOnly == true) {
+                    if (cookie.domain == domain && checkPath(path, cookie)) {
+                        cookiesToReturn[cookiesToReturn.length()] = cookie;
+                    }
+                } else {
+                    if ((domain.endsWith("." + cookie.domain) || cookie.domain == domain ) && checkPath(path, cookie)) {
+                        cookiesToReturn[cookiesToReturn.length()] = cookie;
+                    }
                 }
             }
+            // TODO:Get persistent cookies from database.
+            return cookiesToReturn;
         }
-        // TODO:Get persistent cookies from database.
-        return cookiesToReturn;
     }
 
      # Gets all the session and persistent cookies.
      #
      # + return - All the session and persistent cookies
      public function getAllCookies() returns Cookie[] {
-         // TODO:Get persistent cookies.
-         return self.allSessionCookies;
+         lock {
+             // TODO:Get persistent cookies.
+             return self.allSessionCookies;
+         }
      }
 
      # Removes a specific cookie.
@@ -121,33 +127,39 @@ public type CookieStore object {
      # + path - Path of the cookie to be removed
      # + return - Return true if the relevant cookie is removed, false otherwise
      public function removeCookie(string name, string domain, string path) returns boolean {
-         // Removes the session cookie in the cookie store which is matched with  given name, domain and path.
-         int k = 0;
-         while (k < self.allSessionCookies.length()) {
-             if (name == self.allSessionCookies[k].name && domain == self.allSessionCookies[k].domain && path ==  self.allSessionCookies[k].path) {
-                 int j = k;
-                 while (j < self.allSessionCookies.length()-1) {
-                     self.allSessionCookies[j] = self.allSessionCookies[j + 1];
-                     j = j + 1;
+         lock {
+             // Removes the session cookie in the cookie store which is matched with  given name, domain and path.
+             int k = 0;
+             while (k < self.allSessionCookies.length()) {
+                 if (name == self.allSessionCookies[k].name && domain == self.allSessionCookies[k].domain && path ==  self.allSessionCookies[k].path) {
+                     int j = k;
+                     while (j < self.allSessionCookies.length()-1) {
+                         self.allSessionCookies[j] = self.allSessionCookies[j + 1];
+                         j = j + 1;
+                     }
+                     Cookie lastCookie = self.allSessionCookies.pop();
+                     return true;
                  }
-                 Cookie lastCookie = self.allSessionCookies.pop();
-                 return true;
+                 k = k + 1;
              }
-             k = k + 1;
+             // TODO:Remove from the database if it is a persistent cookie.
+             return false;
          }
-         // TODO:Remove from the database if it is a persistent cookie.
-         return false;
      }
 
     # Removes all expired cookies.
     public function removeExpiredCookies() {
-     // TODO:If expired remove persistent cookies from the database.
+        lock {
+            // TODO:If expired, remove those persistent cookies from the database.
+        }
     }
 
     # Removes all the session and persistent cookies.
     public function clear() {
-      // TODO:Remove all persistent cookies from the database.
-      self.allSessionCookies = [];
+        lock {
+            // TODO:Remove all persistent cookies from the database.
+            self.allSessionCookies = [];
+        }
     }
 };
 
