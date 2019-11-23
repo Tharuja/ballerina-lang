@@ -56,7 +56,7 @@ public type Client client object {
         }
     }
 
-    # The `post()` function can be used to send HTTP POST requests to HTTP endpoints.
+    # The `Client.post()` function can be used to send HTTP POST requests to HTTP endpoints.
     #
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
@@ -67,7 +67,7 @@ public type Client client object {
         return self.httpClient->post(path, req);
     }
 
-    # The `head()` function can be used to send HTTP HEAD requests to HTTP endpoints.
+    # The `Client.head()` function can be used to send HTTP HEAD requests to HTTP endpoints.
     #
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
@@ -78,7 +78,7 @@ public type Client client object {
         return self.httpClient->head(path, message = req);
     }
 
-    # The `put()` function can be used to send HTTP PUT requests to HTTP endpoints.
+    # The `Client.put()` function can be used to send HTTP PUT requests to HTTP endpoints.
     #
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
@@ -101,7 +101,7 @@ public type Client client object {
         return self.httpClient->execute(httpVerb, path, req);
     }
 
-    # The `patch()` function can be used to send HTTP PATCH requests to HTTP endpoints.
+    # The `Client.patch()` function can be used to send HTTP PATCH requests to HTTP endpoints.
     #
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
@@ -112,7 +112,7 @@ public type Client client object {
         return self.httpClient->patch(path, req);
     }
 
-    # The `delete()` function can be used to send HTTP DELETE requests to HTTP endpoints.
+    # The `Client.delete()` function can be used to send HTTP DELETE requests to HTTP endpoints.
     #
     # + path - Resource path
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
@@ -123,7 +123,7 @@ public type Client client object {
         return self.httpClient->delete(path, req);
     }
 
-    # The `get()` function can be used to send HTTP GET requests to HTTP endpoints.
+    # The `Client.get()` function can be used to send HTTP GET requests to HTTP endpoints.
     #
     # + path - Request path
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
@@ -134,7 +134,7 @@ public type Client client object {
         return self.httpClient->get(path, message = req);
     }
 
-    # The `options()` function can be used to send HTTP OPTIONS requests to HTTP endpoints.
+    # The `Client.options()` function can be used to send HTTP OPTIONS requests to HTTP endpoints.
     #
     # + path - Request path
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
@@ -145,7 +145,7 @@ public type Client client object {
         return self.httpClient->options(path, message = req);
     }
 
-    # The `forward()` function can be used to invoke an HTTP call with inbound request's HTTP verb
+    # The `Client.forward()` function can be used to invoke an HTTP call with inbound request's HTTP verb
     #
     # + path - Request path
     # + request - An HTTP inbound request message
@@ -155,7 +155,7 @@ public type Client client object {
     }
 
     # Submits an HTTP request to a service with the specified HTTP verb.
-    # The `submit()` function does not give out a `Response` as the result,
+    # The `Client.submit()` function does not give out a `Response` as the result,
     # rather it returns an `HttpFuture` which can be used to do further interactions with the endpoint.
     #
     # + httpVerb - The HTTP verb value
