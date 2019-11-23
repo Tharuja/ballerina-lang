@@ -17,7 +17,7 @@
 # Provides cookie functionality across HTTP client actions.
 #
 # + url - Target service url
-# + config - HTTP ClientEndpointConfig to be used for HTTP client invocation
+# + config - HTTP ClientConfiguration to be used for HTTP client invocation
 # + cookieConfig - Configurations associated with cookies
 # + httpClient - HTTP client for outbound HTTP requests
 # + cookieStore - Store to keep cookies of the client
@@ -32,7 +32,7 @@ public type CookieClient object {
     # Creates a cookie client with the given configurations.
     #
     # + url - Target service url
-    # + config - HTTP ClientEndpointConfig to be used for HTTP client invocation
+    # + config - HTTP ClientConfiguration to be used for HTTP client invocation
     # + cookieConfig - Configurations associated with cookies
     # + httpClient - HTTP client for outbound HTTP requests
     # + cookieStore - Store to keep cookies of the client
@@ -44,13 +44,13 @@ public type CookieClient object {
          self.cookieStore = cookieStore;
     }
 
-    # If the received response for the `get()` action is redirect eligible, redirect will be performed automatically
-    # by this `get()` function.
+    # The `CookieClient.get()` function wraps the underlying HTTP remote functions in a way to provide
+    # cookie functionality for a given endpoint.
     #
     # + path - Resource path
-    # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`,
-    #             `byte[]`, `io:ByteChannel` or `mime:Entity[]`
-    # + return - The HTTP `Response` message, or an error if the invocation fails
+    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
+    # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
     public function get(string path, public RequestMessage message = ()) returns @tainted Response|ClientError {
         Request request = <Request>message;
         addStoredCookiesToRequest(self.url, path, self.cookieStore, request);
@@ -58,13 +58,13 @@ public type CookieClient object {
         return addCookiesInResponseToStore(inboundResponse, self.cookieStore, self.cookieConfig, self.url, path);
     }
 
-    # If the received response for the `post()` action is redirect eligible, redirect will be performed automatically
-    # by this `post()` function.
+    # The `CookieClient.post()` function wraps the underlying HTTP remote functions in a way to provide
+    # cookie functionality for a given endpoint.
     #
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
-    #             `io:ByteChannel` or `mime:Entity[]`
-    # + return - The HTTP `Response` message, or an error if the invocation fails
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
+    # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
     public function post(string path, RequestMessage message) returns Response|ClientError {
         Request request = <Request>message;
         addStoredCookiesToRequest(self.url, path, self.cookieStore, request);
@@ -72,13 +72,13 @@ public type CookieClient object {
         return addCookiesInResponseToStore(inboundResponse, self.cookieStore, self.cookieConfig, self.url, path);
     }
 
-    # If the received response for the `head()` action is redirect eligible, redirect will be performed automatically
-    # by this `head()` function.
+    # The `CookieClient.head()` function wraps the underlying HTTP remote functions in a way to provide
+    # cookie functionality for a given endpoint.
     #
     # + path - Resource path
-    # + message - An optional HTTP outbound request message or or any payload of type `string`, `xml`, `json`,
-    #             `byte[]`, `io:ByteChannel` or `mime:Entity[]`
-    # + return - The HTTP `Response` message, or an error if the invocation fails
+    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
+    # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
     public function head(string path, public RequestMessage message = ()) returns @tainted Response|ClientError {
         Request request = <Request>message;
         addStoredCookiesToRequest(self.url, path, self.cookieStore, request);
@@ -86,13 +86,13 @@ public type CookieClient object {
         return addCookiesInResponseToStore(inboundResponse, self.cookieStore, self.cookieConfig, self.url, path);
     }
 
-    # If the received response for the `put()` action is redirect eligible, redirect will be performed automatically
-    # by this `put()` function.
+    # The `CookieClient.put()` function wraps the underlying HTTP remote functions in a way to provide
+    # cookie functionality for a given endpoint.
     #
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
-    #             `io:ByteChannel` or `mime:Entity[]`
-    # + return - The HTTP `Response` message, or an error if the invocation fails
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
+    # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
     public function put(string path, RequestMessage message) returns Response|ClientError {
         Request request = <Request>message;
         addStoredCookiesToRequest(self.url, path, self.cookieStore, request);
@@ -100,25 +100,26 @@ public type CookieClient object {
         return addCookiesInResponseToStore(inboundResponse, self.cookieStore, self.cookieConfig, self.url, path);
     }
 
-    # The `forward()` function is used to invoke an HTTP call with inbound request's HTTP verb.
+    # The `CookieClient.forward()` function wraps the underlying HTTP remote functions in a way to provide
+    # cookie functionality for a given endpoint.
     #
     # + path - Resource path
     # + request - An HTTP inbound request message
-    # + return - The HTTP `Response` message, or an error if the invocation fails
+    # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
     public function forward(string path, Request request) returns Response|ClientError{
         addStoredCookiesToRequest(self.url, path, self.cookieStore, request);
         var inboundResponse = self.httpClient->forward(path, request);
         return addCookiesInResponseToStore(inboundResponse, self.cookieStore, self.cookieConfig, self.url, path);
     }
 
-    # The `execute()` sends an HTTP request to a service with the specified HTTP verb. Redirect will be performed
-    # only for HTTP methods.
+    # The `CookieClient.execute()` function wraps the underlying HTTP remote functions in a way to provide
+    # cookie functionality for a given endpoint.
     #
     # + httpVerb - HTTP verb value
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
-    #             `io:ByteChannel` or `mime:Entity[]`
-    # + return - The HTTP `Response` message, or an error if the invocation fails
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
+    # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
     public function execute(string httpVerb, string path, RequestMessage message) returns Response|ClientError {
         Request request = <Request>message;
         addStoredCookiesToRequest(self.url, path, self.cookieStore, request);
@@ -126,13 +127,13 @@ public type CookieClient object {
         return addCookiesInResponseToStore(inboundResponse, self.cookieStore, self.cookieConfig, self.url, path);
     }
 
-    # If the received response for the `patch()` action is redirect eligible, redirect will be performed automatically
-    # by this `patch()` function.
+    # The `CookieClient.patch()` function wraps the underlying HTTP remote functions in a way to provide
+    # cookie functionality for a given endpoint.
     #
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
-    #             `io:ByteChannel` or `mime:Entity[]`
-    # + return - The HTTP `Response` message, or an error if the invocation fails
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
+    # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
     public function patch(string path, RequestMessage message) returns Response|ClientError  {
         Request request = <Request>message;
         addStoredCookiesToRequest(self.url, path, self.cookieStore, request);
@@ -140,13 +141,13 @@ public type CookieClient object {
         return addCookiesInResponseToStore(inboundResponse, self.cookieStore, self.cookieConfig, self.url, path);
     }
 
-    # If the received response for the `delete()` action is redirect eligible, redirect will be performed automatically
-    # by this `delete()` function.
+    # The `CookieClient.delete()` function wraps the underlying HTTP remote functions in a way to provide
+    # cookie functionality for a given endpoint.
     #
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
-    #             `io:ByteChannel` or `mime:Entity[]`
-    # + return - The HTTP `Response` message, or an error if the invocation fails
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
+    # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
     public function delete(string path, public RequestMessage message = ()) returns Response|ClientError  {
         Request request = <Request>message;
         addStoredCookiesToRequest(self.url, path, self.cookieStore, request);
@@ -154,13 +155,13 @@ public type CookieClient object {
         return addCookiesInResponseToStore(inboundResponse, self.cookieStore, self.cookieConfig, self.url, path);
     }
 
-    # If the received response for the `options()` action is redirect eligible, redirect will be performed automatically
-    # by this `options()` function.
+    # The `CookieClient.options()` function wraps the underlying HTTP remote functions in a way to provide
+    # cookie functionality for a given endpoint.
     #
     # + path - Resource path
-    # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`,
-    #             `byte[]`, `io:ByteChannel` or `mime:Entity[]`
-    # + return - The HTTP `Response` message, or an error if the invocation fails
+    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
+    # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
     public function options(string path, public RequestMessage message = ()) returns Response|ClientError {
         Request request = <Request>message;
         addStoredCookiesToRequest(self.url, path, self.cookieStore, request);
@@ -169,14 +170,14 @@ public type CookieClient object {
     }
 
     # Submits an HTTP request to a service with the specified HTTP verb.
-    # The `submit()` function does not give out a `Response` as the result,
-    # rather it returns an `HttpFuture` which can be used to do further interactions with the endpoint .
+    # The `CookieClient.submit()` function does not give out a `Response` as the result,
+    # rather it returns an `HttpFuture` which can be used to do further interactions with the endpoint.
     #
     # + httpVerb - The HTTP verb value
     # + path - The resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
-    #             `io:ByteChannel` or `mime:Entity[]`
-    # + return - An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
+    # + return - An `HttpFuture` that represents an asynchronous service invocation, or an `ClientError` if the submission fails
     public function submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|ClientError {
         Request request = <Request>message;
         return self.httpClient->submit(httpVerb, path, request);
@@ -185,7 +186,7 @@ public type CookieClient object {
     # Retrieves the `Response` for a previously submitted request.
     #
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
-    # + return - An HTTP response message, or an error if the invocation fails
+    # + return - An HTTP response message, or an `ClientError` if the invocation fails
     public function getResponse(HttpFuture httpFuture) returns Response|ClientError {
         return self.httpClient->getResponse(httpFuture);
     }
@@ -201,7 +202,7 @@ public type CookieClient object {
     # Retrieves the next available `PushPromise` for a previously submitted request.
     #
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
-    # + return - An HTTP Push Promise message, or an error if the invocation fails
+    # + return - An HTTP Push Promise message, or an `ClientError` if the invocation fails
     public function getNextPromise(HttpFuture httpFuture) returns PushPromise|ClientError{
         return self.httpClient->getNextPromise(httpFuture);
     }
@@ -209,13 +210,13 @@ public type CookieClient object {
     # Retrieves the promised server push `Response` message.
     #
     # + promise - The related `PushPromise`
-    # + return - A promised HTTP `Response` message, or an error if the invocation fails
+    # + return - A promised HTTP `Response` message, or an `ClientError` if the invocation fails
     public function getPromisedResponse(PushPromise promise) returns Response|ClientError {
         return self.httpClient->getPromisedResponse(promise);
     }
 
-    # Rejects a `PushPromise`.
-    # When a `PushPromise` is rejected, there is no chance of fetching a promised response using the rejected promise.
+    # Rejects a `PushPromise`. When a `PushPromise` is rejected, there is no chance of fetching a promised
+    # response using the rejected promise.
     #
     # + promise - The Push Promise to be rejected
     public function rejectPromise(PushPromise promise) {
