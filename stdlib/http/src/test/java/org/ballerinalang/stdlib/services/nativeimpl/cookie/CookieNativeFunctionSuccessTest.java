@@ -35,7 +35,6 @@ import java.nio.file.Paths;
 public class CookieNativeFunctionSuccessTest {
 
     private CompileResult result;
-    private static final int MOCK_ENDPOINT_PORT = 9090;
 
     @BeforeClass
     public void setup() {
@@ -45,7 +44,7 @@ public class CookieNativeFunctionSuccessTest {
         result = BCompileUtil.compile(sourceRoot.resolve("cookie-native-function.bal").toString());
     }
 
-    @Test(description = "Test add cookie with same domain and path values as in the request url , into the cookie store")
+    @Test(description = "Test add cookie with same domain and path values as in the request url , into cookie store")
     public void testAddCookieToCookieStore1() {
 
         BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieToCookieStore1");
@@ -56,7 +55,7 @@ public class CookieNativeFunctionSuccessTest {
         Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
     }
 
-    @Test(description = "Test add cookie coming from a sub domain of the cookie's domain value, into the cookie store")
+    @Test(description = "Test add cookie coming from a sub domain of the cookie's domain value, into cookie store")
     public void testAddCookieToCookieStore2() {
 
         BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieToCookieStore2");
@@ -67,7 +66,7 @@ public class CookieNativeFunctionSuccessTest {
         Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
     }
 
-    @Test(description = "Test add a host only cookie into the cookie store")
+    @Test(description = "Test add a host only cookie into cookie store")
     public void testAddCookieToCookieStore3() {
 
         BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieToCookieStore3");
@@ -78,7 +77,7 @@ public class CookieNativeFunctionSuccessTest {
         Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
     }
 
-    @Test(description = "Test add cookie with unspecified path value, into the cookie store")
+    @Test(description = "Test add cookie with unspecified path value, into cookie store")
     public void testAddCookieToCookieStore4() {
 
         BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieToCookieStore4");
@@ -89,7 +88,7 @@ public class CookieNativeFunctionSuccessTest {
         Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
     }
 
-    @Test(description = "Test add cookie coming from a sub directory of the cookie's path value, into the cookie store")
+    @Test(description = "Test add cookie coming from a sub directory of the cookie's path value, into cookie store")
     public void testAddCookieToCookieStore5() {
 
         BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieToCookieStore5");
@@ -100,7 +99,18 @@ public class CookieNativeFunctionSuccessTest {
         Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
     }
 
-    @Test(description = "Test add array of cookies into the cookie store")
+    @Test(description = "Test add a third party cookie into cookie store")
+    public void testAddThirdPartyCookieToCookieStore() {
+
+        BValue[] returnVals = BRunUtil.invoke(result, "testAddThirdPartyCookieToCookieStore");
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                "No cookie objects in the return values");
+        Assert.assertTrue(returnVals.length == 1);
+        BMap<String, BValue> bvalue = (BMap) returnVals[0];
+        Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
+    }
+
+    @Test(description = "Test add an array of cookies into cookie store")
     public void testAddCookiesToCookieStore() {
 
         BValue[] returnVals = BRunUtil.invoke(result, "testAddCookiesToCookieStore");
@@ -113,7 +123,7 @@ public class CookieNativeFunctionSuccessTest {
         Assert.assertEquals(bvalue2.get("name").stringValue(), "SID002");
     }
 
-    @Test(description = "Test add array of cookies into the cookie store")
+    @Test(description = "Test add array of cookies into cookie store")
     public void testAddSimilarCookieToCookieStore() {
 
         BValue[] returnVals = BRunUtil.invoke(result, "testAddSimilarCookieToCookieStore");
@@ -123,6 +133,17 @@ public class CookieNativeFunctionSuccessTest {
         BMap<String, BValue> bvalue = (BMap) returnVals[0];
         Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
         Assert.assertEquals(bvalue.get("value").stringValue(), "6789mnmsddd34");
+    }
+
+    @Test(description = "Test add cookies concurrently into cookie store")
+    public void testAddCookiesConcurrentlyToCookieStore() {
+        BValue[] returnVals = BRunUtil.invoke(result, "testAddCookiesConcurrentlyToCookieStore");
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                "No cookie objects in the return values");
+        // As all concurrently added cookies are same, only one cookie is in the cookie store.
+        Assert.assertTrue(returnVals.length == 1);
+        BMap<String, BValue> bvalue = (BMap) returnVals[0];
+        Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
     }
 
     @Test(description = "Test get the relevant cookie with same domain and path values as in the request url from cookie store")

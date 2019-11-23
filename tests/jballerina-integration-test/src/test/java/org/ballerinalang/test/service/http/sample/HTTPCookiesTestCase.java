@@ -75,4 +75,15 @@ public class HTTPCookiesTestCase extends HttpBaseTest {
                 "cookieClient_04.bal" }, balFilepath);
         Assert.assertTrue(output.contains("SID002=178gd4dmnmsddd34"));
     }
+
+    @Test(description = "Test send concurrent requests by cookie client")
+    public void testSendConcurrentRequests() throws BallerinaTestException {
+        String balFilepath = (new File("src" + File.separator + "test" + File.separator + "resources" +
+                File.separator + "http" + File.separator + "src" + File.separator + "cookie")).getAbsolutePath();
+        BMainInstance bMainInstance = new BMainInstance(balServer);
+        String output = bMainInstance.runMainAndReadStdOut("run", new String[]{
+                "cookieClient_05.bal" }, balFilepath);
+        // Since same two cookies are sent for all concurrent requests, only two cookies are stored in the cookie store.
+        Assert.assertTrue(output.contains("SID001") && output.contains("SID003") && output.contains("2"));
+    }
 }

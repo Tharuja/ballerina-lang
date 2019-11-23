@@ -18,12 +18,12 @@ import ballerina/http;
 import ballerina/io;
 
 public function main() {
-    http:Client cookieclientEndpoint = new ("http://localhost:9253", { cookieConfig: {enabled: true}});
+    http:Client cookieClientEndpoint = new ("http://localhost:9253", { cookieConfig: {enabled: true}});
     http:Request req = new;
     // First request -send  similar session cookies in response.
-    var response = cookieclientEndpoint->get("/cookie/cookieBackend_2", req);
+    var response = cookieClientEndpoint->get("/cookie/cookieBackend_2", req);
     // Second request after replacing old cookie with new cookie .
-    response = cookieclientEndpoint->get("/cookie/cookieBackend_2", req);
+    response = cookieClientEndpoint->get("/cookie/cookieBackend_2", req);
     if (response is http:Response) {
         var payload = response.getTextPayload();
         if (payload is string) {

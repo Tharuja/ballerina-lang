@@ -32,7 +32,7 @@ import org.testng.annotations.Test;
  */
 public class CookieNativeFunctionNegativeTest {
 
-    private CompileResult result, resultNegative;
+    private CompileResult result;
 
     @BeforeClass
     public void setup() {
@@ -40,14 +40,14 @@ public class CookieNativeFunctionNegativeTest {
         result = BCompileUtil.compile(basePath + "cookie-native-function-negative.bal");
     }
 
-    @Test(description = "Test add a cookie with unmatched domain to the cookie store")
+    @Test(description = "Test add a cookie with unmatched domain to cookie store")
     public void testAddCookieWithUnmatchedDomain() {
         BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieWithUnmatchedDomain");
         Assert.assertTrue(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                           "Cookie objects are in the Return Values");;
     }
 
-    @Test(description = "add a cookie with unmatched path to the cookie store")
+    @Test(description = "add a cookie with unmatched path to cookie store")
     public void testAddCookieWithUnmatchedPath() {
         BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieWithUnmatchedPath");
         Assert.assertTrue(returnVals == null || returnVals.length == 0 || returnVals[0] == null,

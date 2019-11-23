@@ -19,17 +19,26 @@ import ballerina/io;
 
 public function main() {
     http:Client cookieClientEndpoint = new ("http://localhost:9253", { cookieConfig: {enabled: true } } );
-    http:Request req = new;
-    // First request -send session cookies in the response.
-    var response = cookieClientEndpoint->get("/cookie/cookieBackend", req);
-    // Second request with cookie header and send more cookies in the response.
-    response = cookieClientEndpoint->get("/cookie/cookieBackend", req);
-    // Third request with cookie header including all relevant session cookies.
-    response = cookieClientEndpoint->get("/cookie/cookieBackend", req);
-    if (response is http:Response) {
-        var payload = response.getTextPayload();
-        if (payload is string) {
-            io:print(payload);
-        }
+    worker w1 {
+        http:Request req = new;
+        var response = cookieClientEndpoint->get("/cookie/cookieBackend", req);
+    }
+    worker w2 {
+        http:Request req = new;
+        var response = cookieClientEndpoint->get("/cookie/cookieBackend", req);
+    }
+    worker w3 {
+        http:Request req = new;
+        var response = cookieClientEndpoint->get("/cookie/cookieBackend", req);
+    }
+    worker w4 {
+        http:Request req = new;
+        var response = cookieClientEndpoint->get("/cookie/cookieBackend", req);
+    }
+    _ = wait {w1, w2, w3, w4};
+    http:Cookie[] cookies = cookieClientEndpoint.getCookieStore().getAllCookies();
+    io:println(cookies.length());
+    foreach var item in cookies {
+        io:println(item.name);
     }
 }
