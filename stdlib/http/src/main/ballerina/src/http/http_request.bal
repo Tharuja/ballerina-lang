@@ -40,7 +40,7 @@ public type Request object {
     public RequestCacheControl? cacheControl = ();
     public MutualSslHandshake? mutualSslHandshake = ();
 
-    private mime:Entity entity;
+    private mime:Entity? entity = ();
     private boolean dirtyRequest;
     boolean noEntityBody;
 
