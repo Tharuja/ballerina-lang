@@ -16,14 +16,25 @@
 
 # The representation of a persistent cookie handler for managing persistent cookies.
 public type PersistentCookieHandler abstract object {
-    # Checks if the request can be authenticated with the relevant `InboundAuthHandler` implementation.
+
+    # Adds a persistent cookie to the cookie store
     #
     # + cookie - Cookie to be added
-    # + return - Returns `true` if can be authenticated. Else, returns `false`
-    public function storePersistentCookies(Cookie cookie) returns boolean;
+    public function storePersistentCookie(Cookie cookie);
 
-    # Tries to authenticate the request with the relevant `InboundAuthHandler` implementation.
+    # Gets all persistent cookies.
     #
-   # + return - Array of persistent cookies stored in the cookie store
+    # + return - Array of persistent cookies stored in the cookie store
     public function getPersistentCookies() returns Cookie[];
+
+    # Removes a specific persistent cookie.
+    #
+    # + name - Name of the persistent cookie to be removed
+    # + domain - Domain of the persistent cookie to be removed
+    # + path - Path of the persistent cookie to be removed
+    # + return - Return true if the relevant persistent cookie is removed, false otherwise
+    public function removePersistentCookie(string name, string domain, string path) returns boolean;
+
+    # Removes all persistent cookies.
+    public function clearAllPersistentCookies();
 };
