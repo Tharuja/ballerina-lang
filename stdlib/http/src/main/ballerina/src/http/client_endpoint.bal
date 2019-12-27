@@ -384,7 +384,7 @@ public type CookieConfig record {|
      int maxTotalCookieCount = 3000;
      boolean blockThirdPartyCookies = true;
      boolean enablePersistence = false;
-     PersistentCookieHandler? persistentCookieHandler = ();
+     PersistentCookieHandler persistentCookieHandler = new DefaultPersistentCookieHandler();
 |};
 
 function initialize(string serviceUrl, ClientConfiguration config, CookieStore? cookieStore) returns HttpClient|error {

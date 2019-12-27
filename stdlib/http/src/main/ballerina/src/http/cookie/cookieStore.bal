@@ -15,19 +15,22 @@
 // under the License.
 
 import ballerina/time;
+import ballerina/stringutils;
+import ballerina/log;
+import ballerina/io;
+import ballerina/file;
 
 # Represents the cookie store.
 #
 # + allSessionCookies - Array to store all the session cookies
+# + persistentCookieHandler - Persistent cookie handler to manage persistent cookies
 public type CookieStore object {
 
     Cookie[] allSessionCookies = [];
-    PersistentCookieHandler? persistentCookieHandler = ();
+    PersistentCookieHandler persistentCookieHandler;
 
-    public function __init(PersistentCookieHandler? persistentCookieHandler) {
-        if (persistentCookieHandler is PersistentCookieHandler) {
+    public function __init(PersistentCookieHandler persistentCookieHandler) {
             self.persistentCookieHandler = persistentCookieHandler;
-        }
     }
 
     # Adds a cookie to the cookie store according to the rules in [RFC-6265](https://tools.ietf.org/html/rfc6265#section-5.3).
@@ -38,6 +41,9 @@ public type CookieStore object {
     # + requestPath - Resource path
     public function addCookie(Cookie cookie, CookieConfig cookieConfig, string url, string requestPath) {
         string domain = getDomain(url);
+        if (isDomainBlocked(domain)) {
+            return;
+        }
         string path  = requestPath;
         int? index = requestPath.indexOf("?");
         if (index is int) {
@@ -87,13 +93,16 @@ public type CookieStore object {
     # + return - Array of the matched cookies stored in the cookie store
     public function getCookies(string url, string requestPath) returns Cookie[] {
         Cookie[] cookiesToReturn = [];
-        Cookie[] allCookies = self.getAllCookies();
         string domain = getDomain(url);
+        if (isDomainBlocked(domain)) {
+            return cookiesToReturn;
+        }
         string path  = requestPath;
         int? index = requestPath.indexOf("?");
         if (index is int) {
             path = requestPath.substring(0,index);
         }
+        Cookie[] allCookies = self.getAllCookies();
         lock {
             foreach var cookie in allCookies {
                 if (isExpired(cookie)) {
@@ -126,15 +135,11 @@ public type CookieStore object {
     # + return - Array of all the cookie objects
     public function getAllCookies() returns Cookie[] {
         // TODO:Get persistent cookies.
-        Cookie[] persistentCookies = [];
         Cookie[] allCookies = [];
         foreach var cookie in self.allSessionCookies {
             allCookies.push(cookie);
         }
-        var persistentCookieHandler = self.persistentCookieHandler;
-        if (persistentCookieHandler is PersistentCookieHandler) {
-            persistentCookies = persistentCookieHandler.getPersistentCookies();
-        }
+        Cookie[] persistentCookies = self.persistentCookieHandler.getCookies();
         foreach var cookie in persistentCookies {
             allCookies.push(cookie);
         }
@@ -148,7 +153,6 @@ public type CookieStore object {
     # + path - Path of the cookie to be removed
     # + return - Return true if the relevant cookie is removed, false otherwise
     public function removeCookie(string name, string domain, string path) returns boolean {
-        var persistentCookieHandler = self.persistentCookieHandler;
          lock {
              // Removes the session cookie in the cookie store, which is matched with the given name, domain and path.
              int k = 0;
@@ -164,11 +168,8 @@ public type CookieStore object {
                  }
                  k = k + 1;
              }
-              // TODO:Remove from the database if it is a persistent cookie.
-              if (persistentCookieHandler is PersistentCookieHandler) {
-                  return persistentCookieHandler.removePersistentCookie(name, domain, path);
-              }
-             return false;
+             // TODO:Remove from the database if it is a persistent cookie.
+             return self.persistentCookieHandler.removeCookie(name, domain, path);
          }
     }
 
@@ -176,10 +177,11 @@ public type CookieStore object {
     #
     # + domain - Domain of the cookie to be removed
     public function removeCookieByDomain(string domain) {
+        Cookie[] allCookies = self.getAllCookies();
         string? temp1 = ();
         string? temp2 = ();
         lock {
-            foreach var cookie in self.allSessionCookies {
+            foreach var cookie in allCookies {
                 if (cookie.domain == domain ) {
                     temp1 = cookie.name;
                     temp2 = cookie.path;
@@ -193,7 +195,7 @@ public type CookieStore object {
 
     # Removes all expired cookies.
     public function removeExpiredCookies() {
-        Cookie[] persistentCookies = [];
+        Cookie[] persistentCookies = self.persistentCookieHandler.getCookies();
         //TODO: get persistent cookies
         string? temp1 = ();
         string? temp2 = ();
@@ -206,7 +208,7 @@ public type CookieStore object {
                     temp2 = cookie.domain;
                     temp3 = cookie.path;
                     if (temp1 is string && temp2 is string && temp3 is string) {
-                        _ = self.removeCookie(temp1, temp2, temp3);
+                        _ = self.persistentCookieHandler.removeCookie(temp1, temp2, temp3);
                     }
                 }
             }
@@ -215,13 +217,10 @@ public type CookieStore object {
 
     # Removes all the cookies.
     public function clear() {
-        var persistentCookieHandler = self.persistentCookieHandler;
         lock {
             // TODO:Remove all persistent cookies from the database.
             self.allSessionCookies = [];
-            if (persistentCookieHandler is PersistentCookieHandler) {
-                persistentCookieHandler.clearAllPersistentCookies();
-            }
+            self.persistentCookieHandler.clearAllCookies();
         }
     }
 };
@@ -341,7 +340,6 @@ function isExpiresAttributeValid(Cookie cookie) returns boolean {
 
 // Adds a persistent cookie to the cookie store according to the rules in [RFC-6265](https://tools.ietf.org/html/rfc6265#section-5.3 , https://tools.ietf.org/html/rfc6265#section-4.1.2).
 function addPersistentCookie(Cookie? identicalCookie, Cookie cookie, string url, CookieStore cookieStore) {
-    var persistentCookieHandler = cookieStore.persistentCookieHandler;
     if (identicalCookie is Cookie) {
         var temp1 = identicalCookie.name;
         var temp2 = identicalCookie.domain;
@@ -355,9 +353,7 @@ function addPersistentCookie(Cookie? identicalCookie, Cookie cookie, string url,
                 cookie.creationTime = identicalCookie.creationTime;
                 cookie.lastAccessedTime = time:currentTime();
                 // TODO:insert into the database.
-                if (persistentCookieHandler is PersistentCookieHandler) {
-                    persistentCookieHandler.storePersistentCookie(cookie);
-                }
+                cookieStore.persistentCookieHandler.storeCookie(cookie);
             }
         }
     } else {
@@ -366,9 +362,7 @@ function addPersistentCookie(Cookie? identicalCookie, Cookie cookie, string url,
             cookie.creationTime = time:currentTime();
             cookie.lastAccessedTime = time:currentTime();
             // TODO:insert into the database.
-            if (persistentCookieHandler is PersistentCookieHandler) {
-                persistentCookieHandler.storePersistentCookie(cookie);
-            }
+            cookieStore.persistentCookieHandler.storeCookie(cookie);
         }
     }
 }
@@ -413,5 +407,74 @@ function addSessionCookie(Cookie? identicalCookie, Cookie cookie, string url, Co
         cookie.creationTime = time:currentTime();
         cookie.lastAccessedTime = time:currentTime();
         cookieStore.allSessionCookies.push(cookie);
+    }
+}
+
+function setBlockedDomain(string domain) returns @tainted error? {
+    io:WritableByteChannel writableFileResult = check io:openWritableFile("/home/tharuja/Documents/cookie-store-data.txt", true);
+    io:WritableCharacterChannel dc =  new(writableFileResult, "UTF-8");
+    var writeCharResult1 = check dc.write(domain, 0);
+    var writeCharResult2 = check dc.write("\n", 0);
+    closeWc(dc);
+}
+
+function closeWc(io:WritableCharacterChannel ch) {
+    var cr = ch.close();
+    if (cr is error) {
+        log:printError("Error occurred while closing the channel: ", err = cr);
+    }
+}
+
+function isDomainBlocked(string domain) returns boolean {
+    var blockedDomains = getBlockedDomains();
+    if (blockedDomains is string[]) {
+        foreach var item in blockedDomains {
+            if (domain == item) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+function getBlockedDomains() returns @tainted string[] | error {
+    string[] blockedDomains = [];
+    io:ReadableByteChannel readableFieldResult = check io:openReadableFile("/home/tharuja/Documents/cookie-store-data.txt");
+    io:ReadableCharacterChannel sc = new(readableFieldResult, "UTF-8");
+    string result = check sc.read(500);
+    blockedDomains = stringutils:split(result, "\n");
+    closeRc(sc);
+    return blockedDomains;
+}
+
+function closeRc(io:ReadableCharacterChannel ch) {
+    var cr = ch.close();
+    if (cr is error) {
+        log:printError("Error occurred while closing the channel: ", err = cr);
+    }
+}
+
+function setAllowedDomain(string domain) {
+    var blockedDomains = getBlockedDomains();
+    if (blockedDomains is string[]) {
+        // Removes domain from file.
+         int k = 0;
+         while (k < blockedDomains.length()) {
+            if (domain == blockedDomains[k]) {
+                int j = k;
+                while (j < blockedDomains.length()-1) {
+                    blockedDomains[j] = blockedDomains[j + 1];
+                    j = j + 1;
+                }
+                _ = blockedDomains.pop();
+            }
+            k = k + 1;
+        }
+        // Removes file.
+       error? removeResults = file:remove("/home/tharuja/Documents/cookie-store-data.txt");
+       // Rewrites all
+       foreach var item in blockedDomains {
+           var result = setBlockedDomain(item);
+       }
     }
 }

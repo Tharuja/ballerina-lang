@@ -17,15 +17,15 @@
 # The representation of a persistent cookie handler for managing persistent cookies.
 public type PersistentCookieHandler abstract object {
 
-    # Adds a persistent cookie to the cookie store
+    # Adds a persistent cookie to the cookie store.
     #
     # + cookie - Cookie to be added
-    public function storePersistentCookie(Cookie cookie);
+    public function storeCookie(Cookie cookie);
 
     # Gets all persistent cookies.
     #
     # + return - Array of persistent cookies stored in the cookie store
-    public function getPersistentCookies() returns Cookie[];
+    public function getCookies() returns Cookie[];
 
     # Removes a specific persistent cookie.
     #
@@ -33,8 +33,9 @@ public type PersistentCookieHandler abstract object {
     # + domain - Domain of the persistent cookie to be removed
     # + path - Path of the persistent cookie to be removed
     # + return - Return true if the relevant persistent cookie is removed, false otherwise
-    public function removePersistentCookie(string name, string domain, string path) returns boolean;
+    public function removeCookie(string name, string domain, string path) returns boolean;
 
     # Removes all persistent cookies.
-    public function clearAllPersistentCookies();
+    public function clearAllCookies();
 };
+
