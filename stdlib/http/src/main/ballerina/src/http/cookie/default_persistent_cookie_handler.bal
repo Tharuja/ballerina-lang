@@ -174,6 +174,8 @@ function addNewCookieToTable(table<myCookie> cookiesTable, Cookie cookieToAdd) r
         if (result is error) {
             log:printError("Error occurred while adding data to table: ", err = result);
         }
+    } else {
+        log:printError("Error occurred while adding data to table");
     }
     return tableToReturn;
 }

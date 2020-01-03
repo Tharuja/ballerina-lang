@@ -410,7 +410,8 @@ function addSessionCookie(Cookie? identicalCookie, Cookie cookie, string url, Co
     }
 }
 
-function setBlockedDomain(string domain) returns @tainted error? {
+// Sets a given domain as a blocked domain.
+public function setBlockedDomain(string domain) returns @tainted error? {
     io:WritableByteChannel writableFileResult = check io:openWritableFile("/home/tharuja/Documents/cookie-store-data.txt", true);
     io:WritableCharacterChannel dc =  new(writableFileResult, "UTF-8");
     var writeCharResult1 = check dc.write(domain, 0);
@@ -425,7 +426,8 @@ function closeWc(io:WritableCharacterChannel ch) {
     }
 }
 
-function isDomainBlocked(string domain) returns boolean {
+// Returns true if given domain is blocked; false otherwise.
+public function isDomainBlocked(string domain) returns boolean {
     var blockedDomains = getBlockedDomains();
     if (blockedDomains is string[]) {
         foreach var item in blockedDomains {
@@ -437,6 +439,7 @@ function isDomainBlocked(string domain) returns boolean {
     return false;
 }
 
+// Returns an array of all the blocked domains;
 function getBlockedDomains() returns @tainted string[] | error {
     string[] blockedDomains = [];
     io:ReadableByteChannel readableFieldResult = check io:openReadableFile("/home/tharuja/Documents/cookie-store-data.txt");
@@ -454,7 +457,8 @@ function closeRc(io:ReadableCharacterChannel ch) {
     }
 }
 
-function setAllowedDomain(string domain) {
+// Sets a given domain as an allowed domain.
+public function setAllowedDomain(string domain) returns @tainted error? {
     var blockedDomains = getBlockedDomains();
     if (blockedDomains is string[]) {
         // Removes domain from file.
@@ -472,9 +476,17 @@ function setAllowedDomain(string domain) {
         }
         // Removes file.
        error? removeResults = file:remove("/home/tharuja/Documents/cookie-store-data.txt");
-       // Rewrites all
+       if (removeResults is error) {
+           return removeResults;
+       }
+       // Rewrites all.
        foreach var item in blockedDomains {
            var result = setBlockedDomain(item);
+           if (result is error) {
+               return result;
+           }
        }
+    } else {
+        return blockedDomains;
     }
 }
