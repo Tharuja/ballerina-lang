@@ -33,7 +33,7 @@ type myCookie record {
     boolean hostOnly;
 };
 
-string fileName = "./cookies/persistent-cookies-store.csv";
+
 string? cookieNameToRemove = ();
 string? cookieDomainToRemove = ();
 string? cookiePathToRemove = ();
@@ -41,16 +41,21 @@ string? cookiePathToRemove = ();
 public type DefaultPersistentCookieHandler  object {
     *PersistentCookieHandler;
 
+    string fileName = "";
+
+    public function __init(string fileName) {
+        self.fileName = fileName + ".csv";
+    }
     # Adds a persistent cookie to the cookie store.
     #
     # + cookie - Cookie to be added
     public function storeCookie(Cookie cookie) {
         table<myCookie> cookiesTable = table{};
-        if (file:exists(fileName)) {
-            cookiesTable = getFileDataIntoTable();
+        if (file:exists(self.fileName)) {
+            cookiesTable = getFileDataIntoTable(self.fileName);
         }
         cookiesTable = addNewCookieToTable(cookiesTable, cookie);
-        var result = writeToFile(cookiesTable);
+        var result = writeToFile(cookiesTable, self.fileName);
         if (result is error) {
             log:printError("Error occurred while writing data to file: ", err = result);
         }
@@ -61,8 +66,8 @@ public type DefaultPersistentCookieHandler  object {
     # + return - Array of persistent cookies stored in the cookie store
     public function getCookies() returns Cookie[] {
         Cookie[] cookies = [];
-        if (file:exists(fileName)) {
-            var tblResult = readFile(fileName);
+        if (file:exists(self.fileName)) {
+            var tblResult = readFile(self.fileName);
             if (tblResult is table<myCookie>) {
                 foreach var rec in tblResult {
                     Cookie cookie = new(rec.name, rec.value);
@@ -100,19 +105,19 @@ public type DefaultPersistentCookieHandler  object {
         cookieNameToRemove = name;
         cookieDomainToRemove = domain;
         cookiePathToRemove = path;
-        if (file:exists(fileName)) {
-            table<myCookie> cookiesTable = getFileDataIntoTable();
+        if (file:exists(self.fileName)) {
+            table<myCookie> cookiesTable = getFileDataIntoTable(self.fileName);
             int | error count = cookiesTable.remove(removeCriteria);
             if (count is error || count <= 0) {
                 log:printError("No such cookie to remove");
                 return false;
             }
-            error? removeResults = file:remove(fileName);
+            error? removeResults = file:remove(self.fileName);
             if (removeResults is error) {
                 log:printError("Error occurred while removing the existing file");
                 return false;
             }
-            var result = writeToFile(cookiesTable);
+            var result = writeToFile(cookiesTable, self.fileName);
             if (result is error) {
                 log:printError("Error occurred while writing updated table to file");
                 return false;
@@ -125,7 +130,7 @@ public type DefaultPersistentCookieHandler  object {
 
     # Removes all persistent cookies.
     public function clearAllCookies() {
-        error? removeResults = file:remove(fileName);
+        error? removeResults = file:remove(self.fileName);
         if (removeResults is error) {
             log:printError("Error occurred while removing the persistent cookie store file: ", err = removeResults);
         }
@@ -133,7 +138,7 @@ public type DefaultPersistentCookieHandler  object {
 };
 
 // Reads file and gets earlier data into a table.
-function getFileDataIntoTable() returns @tainted table<myCookie> {
+function getFileDataIntoTable(string fileName) returns @tainted table<myCookie> {
     table<myCookie> cookiesTable = table{};
     var tblResult = readFile(fileName);
     if (tblResult is table<myCookie>) {
@@ -181,7 +186,7 @@ function addNewCookieToTable(table<myCookie> cookiesTable, Cookie cookieToAdd) r
 }
 
 // Writes the updated table to file.
-function writeToFile(table<myCookie> cookiesTable) returns @tainted error? {
+function writeToFile(table<myCookie> cookiesTable, string fileName) returns @tainted error? {
     io:WritableCSVChannel wCsvChannel2 = check io:openWritableCsvFile(fileName);
     foreach var entry in cookiesTable {
         string[] rec = [entry.name, entry.value, entry.domain, entry.path, entry.expires, entry.maxAge.toString(), entry.httpOnly.toString(), entry.secure.toString(), entry.creationTime, entry.lastAccessedTime, entry.hostOnly.toString()];

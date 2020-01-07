@@ -27,10 +27,15 @@ import ballerina/file;
 public type CookieStore object {
 
     Cookie[] allSessionCookies = [];
-    PersistentCookieHandler persistentCookieHandler;
+    PersistentCookieHandler? persistentCookieHandler = ();
 
-    public function __init(PersistentCookieHandler persistentCookieHandler) {
-            self.persistentCookieHandler = persistentCookieHandler;
+    public function __init(PersistentCookieHandler | string? persistentStore) {
+        if (persistentStore is string) {
+            self.persistentCookieHandler = new DefaultPersistentCookieHandler(persistentStore);
+        }
+        if (persistentStore is PersistentCookieHandler){
+            self.persistentCookieHandler = persistentStore;
+        }
     }
 
     # Adds a cookie to the cookie store according to the rules in [RFC-6265](https://tools.ietf.org/html/rfc6265#section-5.3).
@@ -64,10 +69,11 @@ public type CookieStore object {
                 return;
             }
             if (cookie.isPersistent()) {
-                if (!cookieConfig.enablePersistence) {
-                    return;
+                var persistentCookieHandler = self.persistentCookieHandler;
+                if (persistentCookieHandler is PersistentCookieHandler) {
+                    // If user wants to save persistent cookies he should specify a file path or his own persistent cookie handler as the persistent cookie store. if not persistent cookies are ignored.
+                    addPersistentCookie(identicalCookie, cookie, url, persistentCookieHandler, self);
                 }
-                addPersistentCookie(identicalCookie, cookie, url, self);
             } else {
                 addSessionCookie(identicalCookie, cookie, url, self);
             }
@@ -135,13 +141,16 @@ public type CookieStore object {
     # + return - Array of all the cookie objects
     public function getAllCookies() returns Cookie[] {
         // TODO:Get persistent cookies.
+        var persistentCookieHandler = self.persistentCookieHandler;
         Cookie[] allCookies = [];
         foreach var cookie in self.allSessionCookies {
             allCookies.push(cookie);
         }
-        Cookie[] persistentCookies = self.persistentCookieHandler.getCookies();
-        foreach var cookie in persistentCookies {
-            allCookies.push(cookie);
+        if (persistentCookieHandler is PersistentCookieHandler) {
+            Cookie[] persistentCookies = persistentCookieHandler.getCookies();
+            foreach var cookie in persistentCookies {
+                allCookies.push(cookie);
+            }
         }
         return allCookies;
     }
@@ -153,24 +162,30 @@ public type CookieStore object {
     # + path - Path of the cookie to be removed
     # + return - Return true if the relevant cookie is removed, false otherwise
     public function removeCookie(string name, string domain, string path) returns boolean {
-         lock {
-             // Removes the session cookie in the cookie store, which is matched with the given name, domain and path.
-             int k = 0;
-             while (k < self.allSessionCookies.length()) {
-                 if (name == self.allSessionCookies[k].name && domain == self.allSessionCookies[k].domain && path ==  self.allSessionCookies[k].path) {
-                     int j = k;
-                     while (j < self.allSessionCookies.length()-1) {
-                         self.allSessionCookies[j] = self.allSessionCookies[j + 1];
-                         j = j + 1;
-                     }
-                     _ = self.allSessionCookies.pop();
-                     return true;
-                 }
-                 k = k + 1;
-             }
-             // TODO:Remove from the database if it is a persistent cookie.
-             return self.persistentCookieHandler.removeCookie(name, domain, path);
-         }
+        lock {
+            // Removes the session cookie in the cookie store, which is matched with the given name, domain and path.
+            int k = 0;
+            while (k < self.allSessionCookies.length()) {
+                if (name == self.allSessionCookies[k].name && domain == self.allSessionCookies[k].domain && path ==  self.allSessionCookies[k].path) {
+                    int j = k;
+                    while (j < self.allSessionCookies.length()-1) {
+                        self.allSessionCookies[j] = self.allSessionCookies[j + 1];
+                        j = j + 1;
+                    }
+                    _ = self.allSessionCookies.pop();
+                    return true;
+                }
+                k = k + 1;
+            }
+            // TODO:Remove from the database if it is a persistent cookie.
+            var persistentCookieHandler = self.persistentCookieHandler;
+            if (persistentCookieHandler is PersistentCookieHandler) {
+                return persistentCookieHandler.removeCookie(name, domain, path);
+            } else {
+                log:printError("No such cookie to remove");
+                return false;
+            }
+        }
     }
 
     # Removes cookies which match with the given domain.
@@ -195,32 +210,40 @@ public type CookieStore object {
 
     # Removes all expired cookies.
     public function removeExpiredCookies() {
-        Cookie[] persistentCookies = self.persistentCookieHandler.getCookies();
-        //TODO: get persistent cookies
-        string? temp1 = ();
-        string? temp2 = ();
-        string? temp3 = ();
-        lock {
-            // If expired, removes those persistent cookies from the database.
-            foreach var cookie in persistentCookies {
-                if (isExpired(cookie)) {
-                    temp1 = cookie.name;
-                    temp2 = cookie.domain;
-                    temp3 = cookie.path;
-                    if (temp1 is string && temp2 is string && temp3 is string) {
-                        _ = self.persistentCookieHandler.removeCookie(temp1, temp2, temp3);
+        var persistentCookieHandler = self.persistentCookieHandler;
+        if (persistentCookieHandler is PersistentCookieHandler) {
+            Cookie[] persistentCookies = persistentCookieHandler.getCookies();
+            //TODO: get persistent cookies
+            string? temp1 = ();
+            string? temp2 = ();
+            string? temp3 = ();
+            lock {
+                // If expired, removes those persistent cookies from the database.
+                foreach var cookie in persistentCookies {
+                    if (isExpired(cookie)) {
+                        temp1 = cookie.name;
+                        temp2 = cookie.domain;
+                        temp3 = cookie.path;
+                        if (temp1 is string && temp2 is string && temp3 is string) {
+                            _ = persistentCookieHandler.removeCookie(temp1, temp2, temp3);
+                        }
                     }
                 }
             }
+        } else {
+            log:printError("No persistent cookie store to remove expired cookies");
         }
     }
 
     # Removes all the cookies.
     public function clear() {
+        var persistentCookieHandler = self.persistentCookieHandler;
         lock {
             // TODO:Remove all persistent cookies from the database.
             self.allSessionCookies = [];
-            self.persistentCookieHandler.clearAllCookies();
+            if (persistentCookieHandler is PersistentCookieHandler) {
+                persistentCookieHandler.clearAllCookies();
+            }
         }
     }
 };
@@ -339,7 +362,7 @@ function isExpiresAttributeValid(Cookie cookie) returns boolean {
 }
 
 // Adds a persistent cookie to the cookie store according to the rules in [RFC-6265](https://tools.ietf.org/html/rfc6265#section-5.3 , https://tools.ietf.org/html/rfc6265#section-4.1.2).
-function addPersistentCookie(Cookie? identicalCookie, Cookie cookie, string url, CookieStore cookieStore) {
+function addPersistentCookie(Cookie? identicalCookie, Cookie cookie, string url, PersistentCookieHandler persistentCookieHandler, CookieStore cookieStore) {
     if (identicalCookie is Cookie) {
         var temp1 = identicalCookie.name;
         var temp2 = identicalCookie.domain;
@@ -353,7 +376,7 @@ function addPersistentCookie(Cookie? identicalCookie, Cookie cookie, string url,
                 cookie.creationTime = identicalCookie.creationTime;
                 cookie.lastAccessedTime = time:currentTime();
                 // TODO:insert into the database.
-                cookieStore.persistentCookieHandler.storeCookie(cookie);
+                persistentCookieHandler.storeCookie(cookie);
             }
         }
     } else {
@@ -362,7 +385,7 @@ function addPersistentCookie(Cookie? identicalCookie, Cookie cookie, string url,
             cookie.creationTime = time:currentTime();
             cookie.lastAccessedTime = time:currentTime();
             // TODO:insert into the database.
-            cookieStore.persistentCookieHandler.storeCookie(cookie);
+            persistentCookieHandler.storeCookie(cookie);
         }
     }
 }

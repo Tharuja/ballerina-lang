@@ -38,4 +38,3 @@ public type PersistentCookieHandler abstract object {
     # Removes all persistent cookies.
     public function clearAllCookies();
 };
-
