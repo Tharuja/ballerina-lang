@@ -246,6 +246,7 @@
             <class name="org.ballerinalang.test.service.websub.basic.WebSubContentTypeSupportTestCase"/>
             <class name="org.ballerinalang.test.service.websub.basic.WebSubDiscoveryWithMultipleSubscribersTestCase"/>
             <class name="org.ballerinalang.test.service.websub.basic.WebSubRedirectionTestCase"/>
+            <class name="org.ballerinalang.test.service.websub.basic.WebSubStartupFunctionalityTestCase"/>
         </classes>
     </test>
 
@@ -295,6 +296,7 @@
             <class name="org.ballerinalang.test.packaging.PathDependencyTestCase"/>
             <class name="org.ballerinalang.test.packaging.DirectoryTestCase"/>
             <class name="org.ballerinalang.test.packaging.SpiServicesTestCase"/>
+            <class name="org.ballerinalang.test.packaging.SingleBalFileTestCase"/>
         </classes>
     </test>
 
