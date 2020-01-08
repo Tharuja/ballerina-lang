@@ -155,6 +155,21 @@ public type CookieStore object {
         return allCookies;
     }
 
+    # Gets all the cookies which have the given name as the name of the cookie.
+    #
+    # + cookieName - Name of the cookie
+    # + return - Array of all the matched cookie objects
+    public function getCookiesByName(string cookieName) returns Cookie[] {
+        Cookie[] cookiesToReturn = [];
+        Cookie[] allCookies = self.getAllCookies();
+        foreach var cookie in allCookies {
+            if (cookie.name == cookieName) {
+                cookiesToReturn.push(cookie);
+            }
+        }
+        return cookiesToReturn;
+    }
+
     # Removes a specific cookie.
     #
     # + name - Name of the cookie to be removed
