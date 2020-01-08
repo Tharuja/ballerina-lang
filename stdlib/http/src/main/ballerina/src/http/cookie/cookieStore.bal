@@ -45,8 +45,16 @@ public type CookieStore object {
     # + url - Target service URL
     # + requestPath - Resource path
     public function addCookie(Cookie cookie, CookieConfig cookieConfig, string url, string requestPath) {
+        if (self.getAllCookies().length() == cookieConfig.maxTotalCookieCount) {
+            log:printInfo("Number of total cookies in the cookie store can not exceed the maximum amount");
+            return;
+        }
         string domain = getDomain(url);
         if (isDomainBlocked(domain)) {
+            return;
+        }
+        if (self.getCookiesByDomain(domain).length() == cookieConfig.maxCookiesPerDomain) {
+            log:printInfo("Number of total cookies for the domain: " + domain + "in the cookie store can not exceed the maximum amount per domain");
             return;
         }
         string path  = requestPath;
@@ -164,6 +172,21 @@ public type CookieStore object {
         Cookie[] allCookies = self.getAllCookies();
         foreach var cookie in allCookies {
             if (cookie.name == cookieName) {
+                cookiesToReturn.push(cookie);
+            }
+        }
+        return cookiesToReturn;
+    }
+
+    # Gets all the cookies which have the given name as the domain of the cookie.
+    #
+    # + domain - name of the domain
+    # + return - Array of all the matched cookie objects
+    public function getCookiesByDomain(string domain) returns Cookie[] {
+        Cookie[] cookiesToReturn = [];
+        Cookie[] allCookies = self.getAllCookies();
+        foreach var cookie in allCookies {
+            if (cookie.domain == domain) {
                 cookiesToReturn.push(cookie);
             }
         }
