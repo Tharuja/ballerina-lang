@@ -19,15 +19,15 @@ import ballerina/io;
 
 public function main() {
     http:Client cookieClientEndpoint = new ("http://localhost:9253", {
-            cookieConfig: { enabled: true, persistentStore: "./persistent-cookies-tests-data/cookieClient-4" }
+            cookieConfig: { enabled: true,  persistentStore: "./persistent-cookies-tests-data/cookieClient-6" }
         });
     http:Request req = new;
     // Server sends the session cookies in the response for the first request.
-    var response = cookieClientEndpoint->get("/cookie/cookieBackend_3", req);
-    // Server sends an expired cookie in the response in order to remove the existing cookie in the cookie store.
-    response = cookieClientEndpoint->get("/cookie/cookieBackend_3", req);
-    // Third request after removing the cookie.
-    response = cookieClientEndpoint->get("/cookie/cookieBackend_3", req);
+    var response = cookieClientEndpoint->get("/cookie/cookieBackend_4", req);
+    // Second request is with cookie header and server sends more cookies in the response.
+    response = cookieClientEndpoint->get("/cookie/cookieBackend_4", req);
+    // Third request is with cookie header including all relevant session cookies.
+    response = cookieClientEndpoint->get("/cookie/cookieBackend_4", req);
     if (response is http:Response) {
         var payload = response.getTextPayload();
         if (payload is string) {

@@ -18,7 +18,7 @@ import ballerina/http;
 
 // Tests for session cookies.
 function testAddCookieToCookieStore1() returns @tainted http:Cookie[] {
-    http:CookieStore cookieStore = new;
+    http:CookieStore cookieStore = new(());
     http:Cookie cookie1 = new("SID002", "239d4dmnmsddd34");
     cookie1.path = "/sample";
     cookie1.domain = "google.com";
@@ -32,7 +32,7 @@ function testAddCookieToCookieStore1() returns @tainted http:Cookie[] {
 }
 
 function testAddCookieToCookieStore2() returns @tainted http:Cookie[] {
-    http:CookieStore cookieStore = new;
+    http:CookieStore cookieStore = new(());
     http:Cookie cookie1 = new("SID002", "239d4dmnmsddd34");
     cookie1.path = "/sample";
     cookie1.domain = "google.com";
@@ -45,7 +45,7 @@ function testAddCookieToCookieStore2() returns @tainted http:Cookie[] {
 }
 
 function testAddCookieToCookieStore3() returns @tainted http:Cookie[] {
-    http:CookieStore cookieStore = new;
+    http:CookieStore cookieStore = new(());
     http:Cookie cookie1 = new("SID002", "239d4dmnmsddd34");
     cookie1.path = "/sample";
     http:Client cookieClientEndpoint = new("http://google.com", { cookieConfig: { enabled: true } } );
@@ -57,7 +57,7 @@ function testAddCookieToCookieStore3() returns @tainted http:Cookie[] {
 }
 
 function testAddCookieToCookieStore4() returns @tainted http:Cookie[] {
-    http:CookieStore cookieStore = new;
+    http:CookieStore cookieStore = new(());
     http:Cookie cookie1 = new("SID002", "239d4dmnmsddd34");
     cookie1.domain = "google.com";
     http:Client cookieClientEndpoint = new("http://mail.google.com", { cookieConfig: { enabled: true } } );
@@ -69,7 +69,7 @@ function testAddCookieToCookieStore4() returns @tainted http:Cookie[] {
 }
 
 function testAddCookieToCookieStore5() returns @tainted http:Cookie[] {
-    http:CookieStore cookieStore = new;
+    http:CookieStore cookieStore = new(());
     http:Cookie cookie1 = new("SID002", "239d4dmnmsddd34");
     cookie1.domain = "google.com";
     cookie1.path = "/mail";
@@ -82,7 +82,7 @@ function testAddCookieToCookieStore5() returns @tainted http:Cookie[] {
 }
 
 function testAddThirdPartyCookieToCookieStore() returns @tainted http:Cookie[] {
-    http:CookieStore cookieStore = new;
+    http:CookieStore cookieStore = new(());
     http:Cookie cookie1 = new("SID002", "239d4dmnmsddd34");
     cookie1.domain = "ad.doubleclick.net";
     cookie1.path = "/home";
@@ -95,7 +95,7 @@ function testAddThirdPartyCookieToCookieStore() returns @tainted http:Cookie[] {
 }
 
 function testAddCookiesToCookieStore() returns @tainted http:Cookie[] {
-    http:CookieStore cookieStore = new;
+    http:CookieStore cookieStore = new(());
     http:Cookie cookie1 = new("SID001", "239d4dmnmsddd34");
     cookie1.path = "/sample";
     cookie1.domain = "google.com";
@@ -112,7 +112,7 @@ function testAddCookiesToCookieStore() returns @tainted http:Cookie[] {
 }
 
 function testAddSimilarCookieToCookieStore() returns @tainted http:Cookie[] {
-    http:CookieStore cookieStore = new;
+    http:CookieStore cookieStore = new(());
     http:Cookie cookie1 = new("SID002", "239d4dmnmsddd34");
     cookie1.path = "/sample";
     cookie1.domain = "google.com";
@@ -166,7 +166,7 @@ function testAddCookiesConcurrentlyToCookieStore() returns @tainted http:Cookie[
 }
 
 function testGetCookiesFromCookieStore1() returns @tainted http:Cookie[] {
-    http:CookieStore cookieStore = new;
+    http:CookieStore cookieStore = new(());
     http:Cookie cookie1 = new("SID002", "239d4dmnmsddd34");
     cookie1.path = "/sample";
     cookie1.domain = "google.com";
@@ -181,7 +181,7 @@ function testGetCookiesFromCookieStore1() returns @tainted http:Cookie[] {
 }
 
 function testGetCookiesFromCookieStore2() returns @tainted http:Cookie[] {
-    http:CookieStore cookieStore = new;
+    http:CookieStore cookieStore = new(());
     http:Cookie cookie1 = new("SID002", "239d4dmnmsddd34");
     cookie1.path = "/sample";
     cookie1.domain = "google.com";
@@ -194,7 +194,7 @@ function testGetCookiesFromCookieStore2() returns @tainted http:Cookie[] {
 }
 
 function testGetCookiesFromCookieStore3() returns @tainted http:Cookie[] {
-    http:CookieStore cookieStore = new;
+    http:CookieStore cookieStore = new(());
     http:Cookie cookie1 = new("SID002", "239d4dmnmsddd34");
     cookie1.path = "/sample";
     http:Client cookieClientEndpoint = new("http://google.com", { cookieConfig: { enabled: true } } );
@@ -206,7 +206,7 @@ function testGetCookiesFromCookieStore3() returns @tainted http:Cookie[] {
 }
 
 function testGetCookiesFromCookieStore4() returns @tainted http:Cookie[] {
-    http:CookieStore cookieStore = new;
+    http:CookieStore cookieStore = new(());
     http:Cookie cookie1 = new("SID002", "239d4dmnmsddd34");
     cookie1.path = "/mail";
     cookie1.domain = "google.com";
@@ -219,7 +219,7 @@ function testGetCookiesFromCookieStore4() returns @tainted http:Cookie[] {
 }
 
 function testGetCookiesFromCookieStore5() returns @tainted http:Cookie[] {
-    http:CookieStore cookieStore = new;
+    http:CookieStore cookieStore = new(());
     http:Cookie cookie1 = new("SID002", "239d4dmnmsddd34");
     cookie1.domain = "google.com";
     http:Client cookieClientEndpoint = new("http://google.com", { cookieConfig: { enabled: true } } );
@@ -249,7 +249,7 @@ function testGetCookiesFromCookieStore6() returns @tainted http:Cookie[] {
 }
 
 function testGetSecureCookieFromCookieStore() returns @tainted http:Cookie[] {
-    http:CookieStore cookieStore = new;
+    http:CookieStore cookieStore = new(());
     http:Cookie cookie1 = new("SID002", "239d4dmnmsddd34");
     cookie1.path = "/sample";
     cookie1.domain = "google.com";
@@ -263,7 +263,7 @@ function testGetSecureCookieFromCookieStore() returns @tainted http:Cookie[] {
 }
 
 function testRemoveCookieFromCookieStore() returns @tainted http:Cookie[] {
-    http:CookieStore cookieStore = new;
+    http:CookieStore cookieStore = new(());
     http:Cookie cookie1 = new("SID002", "239d4dmnmsddd34");
     cookie1.path = "/sample";
     cookie1.domain = "google.com";
@@ -277,7 +277,7 @@ function testRemoveCookieFromCookieStore() returns @tainted http:Cookie[] {
 }
 
 function testClearAllCookiesInCookieStore() returns @tainted http:Cookie[] {
-    http:CookieStore cookieStore = new;
+    http:CookieStore cookieStore = new(());
     http:Cookie cookie1 = new("SID002", "239d4dmnmsddd34");
     cookie1.path = "/sample";
     cookie1.domain = "google.com";

@@ -100,4 +100,15 @@ public class HTTPCookiesTestCase extends HttpBaseTest {
                 "cookieClient_06.bal"}, balFilepath);
         Assert.assertTrue(output.contains("SID003=895gd4dmnmsddd34; SID002=178gd4dmnmsddd34; SID001=239d4dmnmsddd34"));
     }
+
+    @Test(description = "Test send requests by a cookie client")
+    public void testSendRequestsByClient_2() throws BallerinaTestException {
+        String balFilepath = (new File("src" + File.separator + "test" + File.separator + "resources" +
+                                               File.separator + "http" + File.separator + "src" + File.separator +
+                                               "cookie")).getAbsolutePath();
+        BMainInstance bMainInstance = new BMainInstance(balServer);
+        String output = bMainInstance.runMainAndReadStdOut("run", new String[]{
+                "cookieClient_07.bal"}, balFilepath);
+        Assert.assertTrue(output.contains("SID003=895gd4dmnmsddd34; SID002=178gd4dmnmsddd34; SID001=239d4dmnmsddd34"));
+    }
 }
